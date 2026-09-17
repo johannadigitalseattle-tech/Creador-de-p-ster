@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Creador de Póster Gigante | Élite Creativa Estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Baloo+2:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --pink:#EC4899;
+    --pink-dark:#db2777;
+    --lav:#F3E8FF;
+    --lav2:#EDE4FB;
+    --peach:#FFE9F3;
+    --mint:#E6FBF3;
+    --ink:#3A2E4D;
+    --ink-soft:#6E6284;
+    --white:#FFFFFF;
+    --line:#EADFF5;
+    --shadow: 0 10px 30px rgba(180,120,200,0.18);
+    --shadow-sm: 0 4px 14px rgba(180,120,200,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'DM Sans', sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 10% 0%, var(--peach) 0%, transparent 45%),
+      radial-gradient(circle at 90% 10%, var(--lav) 0%, transparent 50%),
+      radial-gradient(circle at 50% 100%, var(--mint) 0%, transparent 45%),
+      #FFFBFE;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 28px;
+    background:rgba(255,255,255,0.75);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:12px;
+    background:linear-gradient(135deg,var(--pink),#a855f7);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+  }
+  .brand-name{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:17px;color:var(--ink);}
+  .brand-sub{font-size:11px;color:var(--ink-soft);margin-top:-2px;}
+  .session-pill{
+    font-family:'DM Sans',sans-serif;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:#FFF3F9;
+    color:var(--pink-dark);
+    border:1px solid #FBCFE8;
+  }
+  .hero{
+    text-align:center;
+    padding:38px 20px 10px;
+  }
+  .hero h1{
+    font-family:'Great Vibes', cursive;
+    font-size:56px;
+    margin:0;
+    color:var(--pink-dark);
+    line-height:1;
+  }
+  .hero p{
+    font-family:'DM Sans',sans-serif;
+    color:var(--ink-soft);
+    max-width:480px;
+    margin:10px auto 0;
+    font-size:14.5px;
+  }
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:20px;
+    display:grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap:24px;
+  }
+  @media (max-width: 860px){ .wrap{grid-template-columns:1fr;} }
+
+  .card{
+    background:var(--white);
+    border-radius:22px;
+    padding:20px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--line);
+  }
+  .card h2{
+    font-family:'Baloo 2',sans-serif;
+    font-size:16px;
+    margin:0 0 14px;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  /* Upload zone */
+  .dropzone{
+    border:2px dashed #F3B8DA;
+    border-radius:18px;
+    padding:26px;
+    text-align:center;
+    cursor:pointer;
+    background:#FFFAFD;
+    transition:.2s;
+  }
+  .dropzone:hover{background:#FFF3FA; border-color:var(--pink);}
+  .dropzone span.big{font-size:30px;display:block;margin-bottom:6px;}
+  .dropzone p{margin:4px 0 0;font-size:13px;color:var(--ink-soft);}
+
+  /* Preview */
+  .preview-shell{
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    background:
+      linear-gradient(45deg,#f1f1f1 25%,transparent 25%),
+      linear-gradient(-45deg,#f1f1f1 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#f1f1f1 75%),
+      linear-gradient(-45deg,transparent 75%,#f1f1f1 75%);
+    background-size:20px 20px;
+    background-position:0 0,0 10px,10px -10px,-10px 0px;
+    border:2px solid #FBCFE8;
+    min-height:260px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #previewCanvas{ max-width:100%; display:block; }
+  .empty-preview{ color:#C79ED0; font-size:13px; font-family:'DM Sans',sans-serif; padding:40px; text-align:center; }
+
+  .toolbar{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:12px;
+  }
+  .toolbar button{
+    width:34px;height:34px;border-radius:10px;
+    border:1px solid var(--line);
+    background:#fff;
+    cursor:pointer;
+    font-size:14px;
+  }
+  .toolbar button:hover{background:#FFF3FA;}
+
+  /* Form fields */
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;}
+  label{
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-soft);
+    display:block;
+    margin-bottom:6px;
+  }
+  input[type=number], select{
+    width:100%;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    font-family:'DM Sans',sans-serif;
+    font-size:14px;
+    background:#FFFCFE;
+    color:var(--ink);
+  }
+  input[type=number]:focus, select:focus{ outline:none; border-color:var(--pink); }
+
+  .lock-row{
+    display:flex; align-items:center; gap:8px;
+    margin:-6px 0 14px 0;
+    font-size:12.5px; color:var(--ink-soft); cursor:pointer; user-select:none;
+  }
+  .lock-row input{ accent-color:var(--pink); width:15px;height:15px; }
+
+  .auto-crop-btn{
+    width:100%;
+    margin-top:12px;
+    padding:10px;
+    border-radius:12px;
+    border:1.5px solid var(--pink);
+    background:#fff;
+    color:var(--pink-dark);
+    font-family:'Baloo 2',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .auto-crop-btn:hover:not(:disabled){ background:#FFF3FA; }
+  .auto-crop-btn:disabled{ opacity:.4; cursor:not-allowed; border-color:var(--line); color:var(--ink-soft); }
+
+  .aviso-calidad{
+    display:none;
+    background:#FFF7EC;
+    border:1px solid #FBD9A5;
+    border-radius:14px;
+    padding:13px 14px;
+    margin:0 0 14px;
+  }
+  .aviso-calidad.show{ display:block; }
+  .aviso-title{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:#B45309;
+    margin-bottom:9px;
+  }
+  .aviso-opts{ display:flex; flex-direction:column; gap:10px; }
+  .aviso-opt-txt{ font-size:12.5px; color:#7C5B22; line-height:1.45; }
+  .aviso-opt-txt b{ color:#92400E; }
+  .aviso-btn{
+    margin-top:6px;
+    padding:7px 14px;
+    border:none;
+    border-radius:10px;
+    background:var(--pink) !important;
+    color:#fff !important;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .aviso-btn:hover{ background:var(--pink-dark) !important; }
+
+  .check-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+  .check-item{
+    display:flex; align-items:center; gap:9px;
+    font-size:13.5px; color:var(--ink);
+    cursor:pointer; user-select:none;
+  }
+  .check-item input{ accent-color:var(--pink); width:16px;height:16px; }
+
+  .format-row{ display:flex; gap:10px; margin-bottom:16px; }
+  .format-btn{
+    flex:1; padding:10px; border-radius:12px; text-align:center;
+    border:1.5px solid var(--line); font-family:'Baloo 2',sans-serif;
+    font-weight:600; font-size:13px; cursor:pointer; background:#fff; color:var(--ink-soft);
+  }
+  .format-btn.active{ border-color:var(--pink); background:#FFF3FA; color:var(--pink-dark); }
+
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
+    margin-bottom:16px;
+  }
+  .stat{
+    background:var(--lav2); border-radius:12px; padding:10px 6px; text-align:center;
+  }
+  .stat .label{ font-size:9.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); font-weight:700;}
+  .stat .value{ font-family:'Cormorant Garamond',serif; font-weight:700; font-size:19px; color:var(--ink); margin-top:2px;}
+  .stat.warn .value{ color:#e11d48; }
+  .stat.ok .value{ color:#059669; }
+
+  .cost-row{
+    display:flex; align-items:center; justify-content:space-between;
+    background:#FFF7EC; border:1px solid #FCE7C9; border-radius:12px;
+    padding:10px 14px; margin-bottom:16px; font-size:13px;
+  }
+  .cost-row b{ color:#B45309; font-family:'Baloo 2',sans-serif; }
+
+  .btn-main{
+    width:100%; padding:14px; border:none; border-radius:14px;
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:15px;
+    background:var(--pink) !important; color:#fff !important;
+    cursor:pointer; box-shadow:var(--shadow-sm);
+    margin-bottom:10px;
+  }
+  .btn-main:hover{ background:var(--pink-dark) !important; }
+  .btn-main:disabled{ opacity:.5; cursor:not-allowed; }
+
+  .row-secondary{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .btn-sec{
+    padding:10px 6px; border-radius:12px; border:none;
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:12px;
+    cursor:pointer; color:#fff;
+  }
+  .btn-sec.wa{ background:#22c55e; }
+  .btn-sec.print{ background:#334155; }
+  .btn-sec.share{ background:#8b5cf6; }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(58,46,77,0.35);
+    display:none; align-items:center; justify-content:center; z-index:100;
+    backdrop-filter:blur(2px);
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal{
+    background:#fff; border-radius:18px; padding:24px; width:90%; max-width:340px;
+    box-shadow:var(--shadow); text-align:left;
+  }
+  .modal h3{ font-family:'Baloo 2',sans-serif; margin:0 0 10px; font-size:16px; color:var(--ink);}
+  .modal p{ font-size:13px; color:var(--ink-soft); margin:4px 0; }
+  .modal .modal-btns{ display:flex; gap:10px; margin-top:18px; }
+  .modal .modal-btns button{
+    flex:1; padding:10px; border-radius:10px; border:none;
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:13px; cursor:pointer;
+  }
+  .modal .cancel{ background:#F3F0F7; color:var(--ink-soft); }
+  .modal .ok{ background:var(--pink) !important; color:#fff !important; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:#fff; padding:12px 20px; border-radius:12px;
+    font-size:13px; z-index:200; opacity:0; pointer-events:none; transition:.25s;
+  }
+  .toast.show{ opacity:1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">🖼️</div>
+    <div>
+      <div class="brand-name">Creador de Póster Gigante</div>
+      <div class="brand-sub">Élite Creativa Estudio</div>
+    </div>
+  </div>
+  <div id="sessionPill" class="session-pill">🔒 Vista previa</div>
+</header>
+
+<div class="hero">
+  <h1>Tu diseño, del tamaño que sueñes</h1>
+  <p>Sube tu imagen, elige el tamaño final y descarga las hojas listas para imprimir y armar tu póster gigante en casa.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- LEFT: preview -->
+  <div class="card">
+    <h2>🖼️ Vista previa</h2>
+    <div id="dropzone" class="dropzone">
+      <span class="big">📤</span>
+      <strong>Toca para subir tu imagen</strong>
+      <p>PNG o JPG · fondo transparente recomendado</p>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none">
+
+    <div style="margin-top:14px;">
+      <label>Nombre del proyecto</label>
+      <input type="text" id="nombreProyecto" placeholder="Molde Stitch" style="width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);font-family:'DM Sans',sans-serif;font-size:14px;background:#FFFCFE;color:var(--ink);">
+    </div>
+
+    <button id="autoRecortarBtn" class="auto-crop-btn" disabled>✂️ Auto recortar bordes vacíos</button>
+
+    <div class="preview-shell" id="previewShell" style="margin-top:14px;">
+      <div class="empty-preview" id="emptyPreview">Aquí verás tu imagen con la cuadrícula de hojas 🍎</div>
+      <canvas id="previewCanvas" style="display:none;"></canvas>
+    </div>
+
+    <div class="toolbar">
+      <button id="zoomOut" title="Alejar">➖</button>
+      <button id="zoomIn" title="Acercar">➕</button>
+      <button id="fitBtn" title="Ajustar">🔳</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: controls -->
+  <div class="card">
+    <h2>⚙️ Configuración</h2>
+
+    <div class="grid2">
+      <div>
+        <label>Ancho final (cm)</label>
+        <input type="number" id="anchoInput" value="60" min="1" step="0.1">
+      </div>
+      <div>
+        <label>Alto final (cm)</label>
+        <input type="number" id="altoInput" value="60" min="1" step="0.1">
+      </div>
+    </div>
+
+    <label class="lock-row">
+      <input type="checkbox" id="lockProp" checked>
+      🔒 Mantener proporción de la imagen
+    </label>
+
+    <div id="avisoCalidad" class="aviso-calidad">
+      <div class="aviso-title" id="avisoTitulo"></div>
+      <div class="aviso-opts">
+        <div class="aviso-opt">
+          <div class="aviso-opt-txt" id="opcionA"></div>
+          <button class="aviso-btn" id="btnAjustar">Ajustar tamaño</button>
+        </div>
+        <div class="aviso-opt">
+          <div class="aviso-opt-txt" id="opcionB"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Papel</label>
+        <select id="papelSelect">
+          <option value="A4">A4 (21 x 29.7 cm)</option>
+          <option value="Carta">Carta (21.6 x 27.9 cm)</option>
+          <option value="Oficio">Oficio (21.6 x 35.5 cm)</option>
+        </select>
+      </div>
+      <div>
+        <label>Orientación</label>
+        <select id="orientSelect">
+          <option value="auto">Automático</option>
+          <option value="portrait">Vertical</option>
+          <option value="landscape">Horizontal</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="format-row">
+      <div class="format-btn active" id="fmtPdf">📄 PDF</div>
+      <div class="format-btn" id="fmtZip">🗂️ ZIP (JPG)</div>
+    </div>
+
+    <div class="check-list">
+      <label class="check-item"><input type="checkbox" id="chkGuias" checked> ✂️ Ver cuadrícula en pantalla <span style="font-size:11px;color:var(--ink-soft);">(no se imprime)</span></label>
+      <label class="check-item"><input type="checkbox" id="chkMolde"> ⬛ Modo Molde (blanco y negro)</label>
+      <div id="moldeControl" style="display:none; padding-left:26px; margin-top:-2px;">
+        <label style="margin-bottom:4px;">Sensibilidad del molde</label>
+        <input type="range" id="moldeUmbral" min="80" max="245" value="200" style="width:100%; accent-color:var(--pink);">
+        <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink-soft); margin-top:2px;">
+          <span>Solo lo más oscuro</span><span>Captura más detalle</span>
+        </div>
+      </div>
+      <label class="check-item"><input type="checkbox" id="chkOmitir" checked> 🌿 Omitir hojas vacías</label>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="label">Hojas</div><div class="value" id="statHojas">–</div></div>
+      <div class="stat"><div class="label">Cuadrícula</div><div class="value" id="statGrid">–</div></div>
+      <div class="stat"><div class="label">Orientación</div><div class="value" id="statOrient" style="font-size:13px;">–</div></div>
+      <div class="stat" id="statCalidadBox"><div class="label">Calidad</div><div class="value" id="statCalidad" style="font-size:13px;">–</div></div>
+    </div>
+
+    <div class="cost-row">
+      <span>💎 Costo</span>
+      <span><b>1 crédito</b> · siempre fijo</span>
+    </div>
+
+    <button class="btn-main" id="generarBtn" disabled>⬇️ Generar Póster</button>
+
+    <div class="row-secondary">
+      <button class="btn-sec wa" id="btnWA">💬 Compartir</button>
+      <button class="btn-sec print" id="btnPrint">🖨️ Imprimir</button>
+      <button class="btn-sec share" id="btnLink">🔗 Enlace 24h</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>📄 ¿Generar póster de <span id="modalMedida"></span>?</h3>
+    <p>📑 Hojas: <b id="modalHojas"></b></p>
+    <p>💎 Costo: <b>1 crédito</b></p>
+    <div class="modal-btns">
+      <button class="cancel" id="modalCancel">Cancelar</button>
+      <button class="ok" id="modalOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- Sesión (Élite Creativa Estudio) ---------- */
+(function(){
+  const pill = document.getElementById('sessionPill');
+  const session = sessionStorage.getItem('ece_session');
+  if(session){
+    pill.textContent = '✅ Sesión activa';
+    pill.style.color = '#059669';
+    pill.style.background = '#ECFDF5';
+    pill.style.borderColor = '#A7F3D0';
+  }
+})();
+
+/* ---------- Estado ---------- */
+const PAPERS = {
+  A4:    {w:21,   h:29.7},
+  Carta: {w:21.6, h:27.9},
+  Oficio:{w:21.6, h:35.5}
+};
+const PPI = 150; // resolución de trabajo (px por pulgada) para recorte/calidad
+const CM_PER_INCH = 2.54;
+
+let img = null;               // <img> original
+let masterCanvas = null;      // canvas con la imagen a tamaño final (en px de trabajo)
+let tiles = [];                // info de cada hoja calculada
+let currentFormat = 'pdf';
+let zoom = 1;
+
+const el = id => document.getElementById(id);
+const dropzone = el('dropzone');
+const fileInput = el('fileInput');
+const previewCanvas = el('previewCanvas');
+const emptyPreview = el('emptyPreview');
+const anchoInput = el('anchoInput');
+const altoInput = el('altoInput');
+const lockProp = el('lockProp');
+const papelSelect = el('papelSelect');
+const orientSelect = el('orientSelect');
+const chkGuias = el('chkGuias');
+const chkMolde = el('chkMolde');
+const chkOmitir = el('chkOmitir');
+const generarBtn = el('generarBtn');
+const toast = el('toast');
+
+let aspectRatio = 1;
+
+/* ---------- Subida de imagen ---------- */
+dropzone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const image = new Image();
+    image.onload = () => {
+      img = image;
+      aspectRatio = img.naturalWidth / img.naturalHeight;
+      if(lockProp.checked){
+        altoInput.value = (parseFloat(anchoInput.value) / aspectRatio).toFixed(1);
+      }
+      emptyPreview.style.display = 'none';
+      previewCanvas.style.display = 'block';
+      generarBtn.disabled = false;
+      document.getElementById('autoRecortarBtn').disabled = false;
+      const maxW = ((img.naturalWidth / 150) * CM_PER_INCH).toFixed(0);
+      const maxH = ((img.naturalHeight / 150) * CM_PER_INCH).toFixed(0);
+      showToast(`📐 ${img.naturalWidth}x${img.naturalHeight} px · máximo recomendado: ${maxW} x ${maxH} cm`);
+      recalcular();
+    };
+    image.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+/* ---------- Auto recortar bordes vacíos ---------- */
+const autoRecortarBtn = el('autoRecortarBtn');
+autoRecortarBtn.addEventListener('click', () => {
+  if(!img) return;
+
+  const c = document.createElement('canvas');
+  c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const cx = c.getContext('2d');
+  cx.drawImage(img, 0, 0);
+
+  const data = cx.getImageData(0,0,c.width,c.height).data;
+  const BLANCO = 245;
+  let minX = c.width, minY = c.height, maxX = -1, maxY = -1;
+
+  for(let y=0; y<c.height; y++){
+    for(let x=0; x<c.width; x++){
+      const i = (y*c.width + x)*4;
+      const a = data[i+3];
+      if(a < 12) continue;
+      if(data[i] >= BLANCO && data[i+1] >= BLANCO && data[i+2] >= BLANCO) continue;
+      if(x < minX) minX = x;
+      if(x > maxX) maxX = x;
+      if(y < minY) minY = y;
+      if(y > maxY) maxY = y;
+    }
+  }
+
+  if(maxX < 0){ showToast('No se encontró contenido para recortar'); return; }
+
+  const pad = 4; // margen de seguridad en px
+  minX = Math.max(0, minX - pad);
+  minY = Math.max(0, minY - pad);
+  maxX = Math.min(c.width-1,  maxX + pad);
+  maxY = Math.min(c.height-1, maxY + pad);
+
+  const newW = maxX - minX + 1;
+  const newH = maxY - minY + 1;
+
+  if(newW === c.width && newH === c.height){
+    showToast('Tu imagen ya está ajustada, no hay bordes que quitar');
+    return;
+  }
+
+  const cropped = document.createElement('canvas');
+  cropped.width = newW; cropped.height = newH;
+  cropped.getContext('2d').drawImage(c, minX, minY, newW, newH, 0, 0, newW, newH);
+
+  const nueva = new Image();
+  nueva.onload = () => {
+    const antesW = img.naturalWidth, antesH = img.naturalHeight;
+    img = nueva;
+    aspectRatio = newW / newH;
+    if(lockProp.checked){
+      altoInput.value = (parseFloat(anchoInput.value) / aspectRatio).toFixed(1);
+    }
+    recalcular();
+    showToast(`✂️ Recortado: ${antesW}x${antesH} → ${newW}x${newH} px`);
+  };
+  nueva.src = cropped.toDataURL('image/png');
+});
+
+/* ---------- Proporción ---------- */
+anchoInput.addEventListener('input', () => {
+  if(lockProp.checked && img){
+    altoInput.value = (parseFloat(anchoInput.value || 0) / aspectRatio).toFixed(1);
+  }
+  recalcular();
+});
+altoInput.addEventListener('input', () => {
+  if(lockProp.checked && img){
+    anchoInput.value = (parseFloat(altoInput.value || 0) * aspectRatio).toFixed(1);
+  }
+  recalcular();
+});
+[papelSelect, orientSelect, chkGuias, chkMolde, chkOmitir].forEach(elm=>{
+  elm.addEventListener('change', recalcular);
+});
+chkMolde.addEventListener('change', () => {
+  document.getElementById('moldeControl').style.display = chkMolde.checked ? 'block' : 'none';
+});
+document.getElementById('moldeUmbral').addEventListener('input', () => {
+  if(chkMolde.checked && img) recalcular();
+});
+lockProp.addEventListener('change', () => { if(img) recalcular(); });
+
+/* ---------- Formato PDF/ZIP ---------- */
+el('fmtPdf').addEventListener('click', () => setFormat('pdf'));
+el('fmtZip').addEventListener('click', () => setFormat('zip'));
+function setFormat(f){
+  currentFormat = f;
+  el('fmtPdf').classList.toggle('active', f==='pdf');
+  el('fmtZip').classList.toggle('active', f==='zip');
+}
+
+/* ---------- Zoom ---------- */
+el('zoomIn').addEventListener('click', () => { zoom = Math.min(zoom+0.2, 3); applyZoom(); });
+el('zoomOut').addEventListener('click', () => { zoom = Math.max(zoom-0.2, 0.4); applyZoom(); });
+el('fitBtn').addEventListener('click', () => { zoom = 1; applyZoom(); });
+function applyZoom(){ previewCanvas.style.transform = `scale(${zoom})`; }
+
+/* ---------- Cálculo principal ---------- */
+function recalcular(){
+  if(!img) return;
+
+  const anchoCm = parseFloat(anchoInput.value) || 0;
+  const altoCm  = parseFloat(altoInput.value) || 0;
+  if(anchoCm <= 0 || altoCm <= 0) return;
+
+  // Resolución de trabajo del "master canvas" (cap para no reventar el navegador)
+  let masterW = Math.round((anchoCm / CM_PER_INCH) * PPI);
+  let masterH = Math.round((altoCm  / CM_PER_INCH) * PPI);
+  const MAX_DIM = 6000;
+  if(masterW > MAX_DIM || masterH > MAX_DIM){
+    const scale = MAX_DIM / Math.max(masterW, masterH);
+    masterW = Math.round(masterW * scale);
+    masterH = Math.round(masterH * scale);
+  }
+
+  masterCanvas = document.createElement('canvas');
+  masterCanvas.width = masterW;
+  masterCanvas.height = masterH;
+  const mctx = masterCanvas.getContext('2d');
+  mctx.clearRect(0,0,masterW,masterH);
+  mctx.drawImage(img, 0, 0, masterW, masterH);
+
+  // Modo Molde: silueta en blanco y negro (todo pixel visible -> negro sólido)
+  if(chkMolde.checked){
+    const data = mctx.getImageData(0,0,masterW,masterH);
+    const d = data.data;
+    const UMBRAL = parseInt(document.getElementById('moldeUmbral').value, 10) || 200;
+    for(let i=0;i<d.length;i+=4){
+      if(d[i+3] < 10){
+        // transparente -> blanco
+        d[i]=255; d[i+1]=255; d[i+2]=255; d[i+3]=255;
+      } else {
+        const lum = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+        const v = lum < UMBRAL ? 20 : 255;
+        d[i]=v; d[i+1]=v; d[i+2]=v; d[i+3]=255;
+      }
+    }
+    mctx.putImageData(data,0,0);
+  }
+
+  // Papel elegido
+  const papel = PAPERS[papelSelect.value];
+  let paperWcm = papel.w, paperHcm = papel.h;
+
+  // Orientación
+  let orientMode = orientSelect.value;
+  if(orientMode === 'auto'){
+    orientMode = (anchoCm >= altoCm) ? 'landscape' : 'portrait';
+  }
+  if(orientMode === 'landscape'){
+    [paperWcm, paperHcm] = [paperHcm, paperWcm];
+  }
+
+  const paperWpx = Math.round((paperWcm / CM_PER_INCH) * PPI);
+  const paperHpx = Math.round((paperHcm / CM_PER_INCH) * PPI);
+
+  const cols = Math.max(1, Math.ceil(masterW / paperWpx));
+  const rows = Math.max(1, Math.ceil(masterH / paperHpx));
+
+  // Detectar hojas vacías
+  tiles = [];
+  let hojasReales = 0;
+  for(let r=0; r<rows; r++){
+    for(let c=0; c<cols; c++){
+      const x = c*paperWpx, y = r*paperHpx;
+      const w = Math.min(paperWpx, masterW-x);
+      const h = Math.min(paperHpx, masterH-y);
+      let isEmpty = false;
+      if(chkOmitir.checked){
+        const data = mctx.getImageData(x,y,w,h).data;
+        isEmpty = true;
+        const BLANCO = 248; // tolerancia: 248+ en RGB cuenta como fondo blanco
+        for(let i=0;i<data.length;i+=4){
+          const a = data[i+3];
+          if(a < 10) continue;               // transparente: sigue contando como vacío
+          if(data[i] >= BLANCO && data[i+1] >= BLANCO && data[i+2] >= BLANCO) continue; // blanco: vacío
+          isEmpty = false; break;            // hay contenido real
+        }
+      }
+      tiles.push({x,y,w,h,row:r,col:c,empty:isEmpty});
+      if(!isEmpty) hojasReales++;
+    }
+  }
+
+  // Dibujar preview con cuadrícula
+  previewCanvas.width = masterW;
+  previewCanvas.height = masterH;
+  const pctx = previewCanvas.getContext('2d');
+  pctx.clearRect(0,0,masterW,masterH);
+  pctx.drawImage(masterCanvas,0,0);
+
+  if(chkGuias.checked){
+    const grosor = Math.max(4, Math.round(masterW/300));
+    // Capa blanca de fondo para que se vea sobre cualquier color
+    pctx.setLineDash([]);
+    pctx.strokeStyle = 'rgba(255,255,255,0.95)';
+    pctx.lineWidth = grosor + 4;
+    for(let c=1;c<cols;c++){
+      const x = c*paperWpx;
+      pctx.beginPath(); pctx.moveTo(x,0); pctx.lineTo(x,masterH); pctx.stroke();
+    }
+    for(let r=1;r<rows;r++){
+      const y = r*paperHpx;
+      pctx.beginPath(); pctx.moveTo(0,y); pctx.lineTo(masterW,y); pctx.stroke();
+    }
+    // Capa rosada punteada encima
+    pctx.strokeStyle = '#EC4899';
+    pctx.setLineDash([grosor*5, grosor*3]);
+    pctx.lineWidth = grosor;
+    for(let c=1;c<cols;c++){
+      const x = c*paperWpx;
+      pctx.beginPath(); pctx.moveTo(x,0); pctx.lineTo(x,masterH); pctx.stroke();
+    }
+    for(let r=1;r<rows;r++){
+      const y = r*paperHpx;
+      pctx.beginPath(); pctx.moveTo(0,y); pctx.lineTo(masterW,y); pctx.stroke();
+    }
+    pctx.setLineDash([]);
+    // Marco exterior
+    pctx.strokeStyle = 'rgba(236,72,153,0.85)';
+    pctx.lineWidth = grosor;
+    pctx.strokeRect(grosor/2, grosor/2, masterW-grosor, masterH-grosor);
+  }
+  // sombrear hojas vacías omitidas
+  if(chkOmitir.checked){
+    pctx.fillStyle = 'rgba(150,150,150,0.35)';
+    tiles.filter(t=>t.empty).forEach(t => pctx.fillRect(t.x,t.y,t.w,t.h));
+  }
+
+  // Fit preview al ancho de la tarjeta
+  fitPreviewToContainer();
+
+  // Estadísticas
+  el('statHojas').textContent = hojasReales;
+  el('statGrid').textContent = `${cols}x${rows}`;
+  el('statOrient').textContent = orientMode === 'landscape' ? 'Horizontal' : 'Vertical';
+
+  const dpi = Math.round(img.naturalWidth / (anchoCm / CM_PER_INCH));
+  const calidadBox = el('statCalidadBox');
+  const calidadEl = el('statCalidad');
+  calidadBox.classList.remove('warn','ok');
+  if(dpi < 100){ calidadEl.textContent = 'Baja · ' + dpi + ' DPI'; calidadBox.classList.add('warn'); }
+  else if(dpi < 200){ calidadEl.textContent = 'Media · ' + dpi + ' DPI'; }
+  else { calidadEl.textContent = 'Buena · ' + dpi + ' DPI'; calidadBox.classList.add('ok'); }
+
+  actualizarAviso(dpi, anchoCm, altoCm);
+
+  generarBtn.disabled = hojasReales === 0;
+}
+
+/* ---------- Aviso con las dos opciones cuando la calidad no alcanza ---------- */
+const DPI_RECOMENDADO = 150;
+function actualizarAviso(dpi, anchoCm, altoCm){
+  const aviso = el('avisoCalidad');
+
+  if(dpi >= DPI_RECOMENDADO){
+    aviso.classList.remove('show');
+    return;
+  }
+
+  // Opción A: hasta qué tamaño alcanza la imagen actual
+  const maxAnchoCm = (img.naturalWidth / DPI_RECOMENDADO) * CM_PER_INCH;
+  const maxAltoCm  = (img.naturalHeight / DPI_RECOMENDADO) * CM_PER_INCH;
+
+  // Opción B: qué imagen haría falta para el tamaño pedido
+  const pxNecesarioW = Math.round((anchoCm / CM_PER_INCH) * DPI_RECOMENDADO);
+  const pxNecesarioH = Math.round((altoCm  / CM_PER_INCH) * DPI_RECOMENDADO);
+
+  el('avisoTitulo').textContent =
+    `⚠️ A ${anchoCm} cm tu imagen saldrá pixeleada (${dpi} DPI). Tienes dos opciones:`;
+
+  el('opcionA').innerHTML =
+    `<b>1. Reduce el tamaño del póster.</b> Con tu imagen actual (${img.naturalWidth} x ${img.naturalHeight} px), ` +
+    `el máximo con buena calidad es <b>${maxAnchoCm.toFixed(1)} cm x ${maxAltoCm.toFixed(1)} cm</b>.`;
+
+  el('opcionB').innerHTML =
+    `<b>2. Usa una imagen más grande.</b> Para imprimir a ${anchoCm} cm x ${altoCm} cm necesitas una imagen de al menos ` +
+    `<b>${pxNecesarioW} x ${pxNecesarioH} px</b>.`;
+
+  el('btnAjustar').onclick = () => {
+    anchoInput.value = maxAnchoCm.toFixed(1);
+    altoInput.value  = maxAltoCm.toFixed(1);
+    recalcular();
+    showToast('✅ Tamaño ajustado para buena calidad');
+  };
+
+  aviso.classList.add('show');
+}
+
+function fitPreviewToContainer(){
+  const shell = el('previewShell');
+  const maxW = shell.clientWidth - 4;
+  const scale = Math.min(1, maxW / previewCanvas.width);
+  previewCanvas.style.width = (previewCanvas.width*scale) + 'px';
+  previewCanvas.style.height = (previewCanvas.height*scale) + 'px';
+}
+window.addEventListener('resize', () => { if(masterCanvas) fitPreviewToContainer(); });
+
+/* ---------- Generar (modal de confirmación) ---------- */
+generarBtn.addEventListener('click', () => {
+  const anchoCm = parseFloat(anchoInput.value);
+  const altoCm  = parseFloat(altoInput.value);
+  el('modalMedida').textContent = `${anchoCm}cm x ${altoCm}cm`;
+  el('modalHojas').textContent = el('statHojas').textContent;
+  el('modalOverlay').classList.add('show');
+});
+el('modalCancel').addEventListener('click', () => el('modalOverlay').classList.remove('show'));
+el('modalOk').addEventListener('click', () => {
+  el('modalOverlay').classList.remove('show');
+  currentFormat === 'pdf' ? exportarPDF() : exportarZIP();
+});
+
+/* ---------- Exportar PDF ---------- */
+async function exportarPDF(){
+  try{
+    if(!window.jspdf){
+      showToast('⚠️ La librería jsPDF no cargó (revisa tu conexión) y no se pudo generar el PDF');
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const papel = PAPERS[papelSelect.value];
+    let orientMode = orientSelect.value;
+    if(orientMode === 'auto'){
+      orientMode = (parseFloat(anchoInput.value) >= parseFloat(altoInput.value)) ? 'landscape' : 'portrait';
+    }
+    let pW = papel.w, pH = papel.h;
+    if(orientMode === 'landscape'){ [pW,pH] = [pH,pW]; }
+
+    const doc = new jsPDF({ unit:'cm', format:[pW,pH], orientation: orientMode === 'landscape' ? 'landscape':'portrait' });
+
+    const visibles = tiles.filter(t => !t.empty);
+    const cols = Math.max(...tiles.map(t=>t.col)) + 1;
+    const rows = Math.max(...tiles.map(t=>t.row)) + 1;
+
+    /* ===== PORTADA ===== */
+    dibujarPortada(doc, pW, pH, cols, rows, visibles.length);
+
+    /* ===== HOJAS DEL PÓSTER ===== */
+    const MARGEN = 1.0; // cm de margen blanco limpio en cada hoja
+    const areaW = pW - MARGEN*2;
+    const areaH = pH - MARGEN*2;
+
+    visibles.forEach((t, idx) => {
+      const tileCanvas = document.createElement('canvas');
+      tileCanvas.width = t.w; tileCanvas.height = t.h;
+      const tctx = tileCanvas.getContext('2d');
+      tctx.fillStyle = '#FFFFFF';
+      tctx.fillRect(0,0,t.w,t.h);
+      tctx.drawImage(masterCanvas, t.x, t.y, t.w, t.h, 0,0,t.w,t.h);
+      const imgData = tileCanvas.toDataURL('image/jpeg', 0.95);
+
+      doc.addPage([pW,pH], orientMode === 'landscape' ? 'landscape':'portrait');
+
+      // Encajar el recorte dentro del área útil manteniendo su proporción y centrado
+      const tileRatio = t.w / t.h;
+      let drawW = areaW, drawH = areaW / tileRatio;
+      if(drawH > areaH){ drawH = areaH; drawW = areaH * tileRatio; }
+      const offX = MARGEN + (areaW - drawW)/2;
+      const offY = MARGEN + (areaH - drawH)/2;
+
+      doc.addImage(imgData, 'JPEG', offX, offY, drawW, drawH);
+
+      // Numeración discreta en la esquina inferior derecha
+      doc.setFontSize(5);
+      doc.setTextColor(205,205,205);
+      doc.text(`${idx+1}/${visibles.length} · F${t.row+1}C${t.col+1}`, pW-0.35, pH-0.3, {align:'right'});
+    });
+
+    await guardarPDF(doc);
+  }catch(err){
+    console.error(err);
+    showToast('⚠️ Error al generar el PDF: ' + err.message);
+  }
+}
+
+/* ---------- Portada del PDF ---------- */
+function dibujarPortada(doc, pW, pH, cols, rows, totalHojas){
+  const anchoCm = parseFloat(anchoInput.value);
+  const altoCm  = parseFloat(altoInput.value);
+  const orientTxt = el('statOrient').textContent;
+  const papelTxt = papelSelect.options[papelSelect.selectedIndex].text;
+
+  let y = 2.2;
+
+  // Título
+  doc.setTextColor(219,39,119);
+  doc.setFontSize(20);
+  const nombreProy = (document.getElementById('nombreProyecto').value || '').trim();
+  doc.text(nombreProy || 'Creador de Póster Gigante', pW/2, y, {align:'center'});
+  if(nombreProy){
+    y += 0.55;
+    doc.setFontSize(10);
+    doc.setTextColor(150,140,170);
+    doc.text('Creador de Póster Gigante', pW/2, y, {align:'center'});
+  }
+  y += 0.75;
+  doc.setTextColor(120,110,140);
+  doc.setFontSize(9);
+  doc.text('Élite Creativa Estudio', pW/2, y, {align:'center'});
+
+  // Línea separadora
+  y += 0.6;
+  doc.setDrawColor(240,220,240);
+  doc.setLineWidth(0.03);
+  doc.line(2, y, pW-2, y);
+
+  // Datos del póster
+  y += 0.9;
+  doc.setTextColor(60,50,80);
+  doc.setFontSize(11);
+  doc.text('Datos de tu póster', 2, y);
+  y += 0.65;
+  doc.setFontSize(9.5);
+  doc.setTextColor(90,80,110);
+  const datos = [
+    ['Medida final', `${anchoCm} cm de ancho x ${altoCm} cm de alto`],
+    ['Cuadrícula', `${cols} columnas x ${rows} filas`],
+    ['Total de hojas', `${totalHojas}`],
+    ['Papel', papelTxt],
+    ['Orientación', orientTxt]
+  ];
+  datos.forEach(d => {
+    doc.text(d[0] + ':', 2.3, y);
+    doc.text(d[1], 7.2, y);
+    y += 0.52;
+  });
+
+  // Instrucciones
+  y += 0.5;
+  doc.setFontSize(11);
+  doc.setTextColor(60,50,80);
+  doc.text('Cómo armar tu póster', 2, y);
+  y += 0.65;
+  doc.setFontSize(9);
+  doc.setTextColor(90,80,110);
+  const pasos = [
+    'Imprime todas las hojas en tamaño real (sin "ajustar a página").',
+    'Guíate por el numerito gris de la esquina: el primer número es el',
+    'orden, y F1C2 significa fila 1, columna 2.',
+    'Recorta el margen blanco por donde termina el dibujo.',
+    'Une las hojas de izquierda a derecha y de arriba hacia abajo.',
+    'Pega por detrás con cinta para que no se note la unión.'
+  ];
+  pasos.forEach(p => { doc.text(p, 2.3, y); y += 0.48; });
+
+  // Miniatura con cuadrícula numerada
+  y += 0.55;
+  const miniMaxW = pW - 5;
+  const miniMaxH = pH - y - 1.8;
+  if(miniMaxH > 2){
+    const ratio = masterCanvas.width / masterCanvas.height;
+    let mW = miniMaxW, mH = miniMaxW / ratio;
+    if(mH > miniMaxH){ mH = miniMaxH; mW = miniMaxH * ratio; }
+    const mX = (pW - mW)/2, mY = y;
+
+    const miniData = masterCanvas.toDataURL('image/jpeg', 0.8);
+    doc.addImage(miniData, 'JPEG', mX, mY, mW, mH);
+
+    // Cuadrícula de referencia sobre la miniatura
+    doc.setDrawColor(200,190,215);
+    doc.setLineWidth(0.02);
+    const cellW = mW/cols, cellH = mH/rows;
+    for(let c=1;c<cols;c++){ doc.line(mX+c*cellW, mY, mX+c*cellW, mY+mH); }
+    for(let r=1;r<rows;r++){ doc.line(mX, mY+r*cellH, mX+mW, mY+r*cellH); }
+    doc.rect(mX, mY, mW, mH);
+
+    // Números de referencia en cada celda visible
+    doc.setFontSize(6);
+    doc.setTextColor(150,140,170);
+    const visibles = tiles.filter(t=>!t.empty);
+    visibles.forEach((t, idx) => {
+      const cx = mX + t.col*cellW + cellW/2;
+      const cy = mY + t.row*cellH + cellH/2;
+      doc.text(String(idx+1), cx, cy, {align:'center'});
+    });
+
+    doc.setFontSize(7.5);
+    doc.setTextColor(150,140,170);
+    doc.text('Así se arma tu póster, hoja por hoja', pW/2, mY+mH+0.55, {align:'center'});
+  }
+}
+
+/* ---------- Guardar el PDF ---------- */
+async function guardarPDF(doc){
+  const raw = (document.getElementById('nombreProyecto').value || '').trim();
+  const slug = raw
+    ? raw.toLowerCase().replace(/[^a-z0-9áéíóúñü\s-]/gi,'').replace(/\s+/g,'-').slice(0,50)
+    : 'poster-gigante';
+  doc.save(slug + '.pdf');
+  showToast('✅ PDF generado con éxito');
+}
+
+/* ---------- Botones secundarios ---------- */
+el('btnWA').addEventListener('click', () => {
+  window.open('https://wa.me/?text=' + encodeURIComponent('¡Mira el póster gigante que armé con Élite Creativa Estudio! 🎉'), '_blank');
+});
+el('btnPrint').addEventListener('click', () => {
+  if(!masterCanvas){ showToast('Primero sube una imagen'); return; }
+  exportarPDF();
+});
+el('btnLink').addEventListener('click', () => {
+  showToast('🔗 Compartir enlace 24h estará disponible al conectar el backend (fase 2)');
+});
+
+/* ---------- Toast ---------- */
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=> toast.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
