@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Baloo+2:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root{
     --pink:#EC4899;
@@ -486,7 +487,7 @@
   .btn-main:hover{ background:var(--pink-dark) !important; }
   .btn-main:disabled{ opacity:.5; cursor:not-allowed; }
 
-  .row-secondary{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  .row-secondary{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
   .btn-sec{
     padding:10px 6px; border-radius:12px; border:none;
     font-family:'Baloo 2',sans-serif; font-weight:600; font-size:12px;
@@ -765,6 +766,7 @@
     <button class="btn-main" id="generarBtn" disabled>⬇️ Generar Póster</button>
 
     <div class="row-secondary">
+      <button class="btn-sec share" id="btnFoto">📸 Guardar foto</button>
       <button class="btn-sec wa" id="btnWA">📲 Compartir en redes</button>
       <button class="btn-sec print" id="btnPrint">🖨️ Imprimir</button>
     </div>
@@ -781,6 +783,16 @@
       <button class="cancel" id="modalCancel">Cancelar</button>
       <button class="ok" id="modalOk">OK</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="fotoOverlay">
+  <div class="modal" style="max-width:380px;">
+    <h3>📸 Guarda tu foto</h3>
+    <p id="fotoTexto">Mantén el dedo sobre la imagen y elige <b>"Guardar en Fotos"</b>.</p>
+    <button class="ok" id="fotoTodas" style="display:none;width:100%;margin-top:12px;padding:12px;border:none;border-radius:12px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">📲 Guardar o compartir todas</button>
+    <div id="fotoLista" style="max-height:55vh;overflow-y:auto;margin-top:12px;"></div>
+    <div class="modal-btns"><button class="cancel" id="fotoCerrar" style="flex:1;">Cerrar</button></div>
   </div>
 </div>
 
@@ -2125,13 +2137,151 @@ async function guardarPDF(doc){
   showToast('✅ PDF generado con éxito');
 }
 
-/* ---------- Exportar ZIP (placeholder liviano) ---------- */
-function exportarZIP(){
-  showToast('🗂️ Exportación ZIP disponible en la fase 2 (requiere librería JSZip)');
+/* ---------- Guardar cualquier archivo: capacidad "downloads" del artifact, o descarga normal (GitHub / archivo HTML) ---------- */
+async function guardarArchivo(blob, filename){
+  if(window.claude && typeof window.claude.use === 'function'){
+    try{
+      const downloads = await window.claude.use('downloads');
+      if(downloads){
+        const res = await downloads.save({ filename: filename, data: blob });
+        return !!res;
+      }
+    }catch(e){ console.error('downloads capability failed', e); }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  return true;
+}
+
+function nombreArchivoBase(){
+  const raw = (document.getElementById('nombreProyecto').value || '').trim();
+  return raw
+    ? raw.toLowerCase().replace(/[^a-z0-9áéíóúñü\s-]/gi,'').replace(/\s+/g,'-').slice(0,50)
+    : 'poster-gigante';
+}
+
+/* Dibuja UNA hoja completa (igual que la página del PDF) en un canvas a tamaño real.
+   dpi = puntos por pulgada; el canvas mide exactamente el papel: pW cm x pH cm */
+function dibujarHojaCanvas(cv, lay, g, t, idx, total, dpi, tileSrc, tij){
+  const k = dpi / CM_PER_INCH;                 // px por cm
+  cv.width  = Math.round(lay.pW * k);
+  cv.height = Math.round(lay.pH * k);
+  const x = cv.getContext('2d');
+  x.fillStyle = '#FFFFFF';
+  x.fillRect(0, 0, cv.width, cv.height);
+
+  // Pedazo a tamaño REAL, en su lugar exacto
+  if(t.pz && tileSrc){
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(tileSrc, 0, 0, tileSrc.width, tileSrc.height,
+                t.pz.dX * k, t.pz.dY * k, t.pz.w * k, t.pz.h * k);
+  }
+
+  // Líneas de corte
+  const trazos = trazosCorte(lay, g);
+  if(trazos.length){
+    x.save();
+    x.strokeStyle = 'rgb(110,98,132)';
+    x.lineWidth = Math.max(1, 0.025 * k);
+    x.setLineDash(impr.lineas === 'dashed' ? [0.3 * k, 0.2 * k] : []);
+    trazos.forEach(([ax,ay,bx,by]) => {
+      x.beginPath(); x.moveTo(ax * k, ay * k); x.lineTo(bx * k, by * k); x.stroke();
+    });
+    x.restore();
+  }
+
+  // Tijeritas
+  if(impr.tijeras && tij){
+    const tam = 0.65 * k;
+    posTijeras(lay, g).forEach(p => {
+      x.drawImage(tij[p.rot], p.x * k - tam/2, p.y * k - tam/2, tam, tam);
+    });
+  }
+
+  // Numeración (8 pt, igual que el PDF)
+  if(impr.numeros !== 'off'){
+    const txt = impr.numeros === 'orden' ? `${idx+1} / ${total}` : `Fila ${t.row+1} - Col ${t.col+1}`;
+    x.fillStyle = 'rgb(140,130,160)';
+    x.font = `${Math.round(8 / 72 * dpi)}px Helvetica, Arial, sans-serif`;
+    x.textAlign = 'right'; x.textBaseline = 'alphabetic';
+    x.fillText(txt, (lay.pW - 0.4) * k, (lay.pH - 0.35) * k);
+  }
+  return cv;
+}
+
+/* Escribe los DPI dentro del JPG (cabecera JFIF) para que los programas sepan su medida real */
+function jpegConDPI(bytes, dpi){
+  const b = new Uint8Array(bytes);
+  if(b[0]===0xFF && b[1]===0xD8 && b[2]===0xFF && b[3]===0xE0 &&
+     b[6]===0x4A && b[7]===0x46 && b[8]===0x49 && b[9]===0x46 && b[10]===0x00){
+    b[13] = 1;                                   // unidad: puntos por pulgada
+    b[14] = (dpi >> 8) & 0xFF; b[15] = dpi & 0xFF;
+    b[16] = (dpi >> 8) & 0xFF; b[17] = dpi & 0xFF;
+  }
+  return b;
+}
+
+/* Crea una JPG a tamaño real por cada hoja (igual que las páginas del PDF). La usan el ZIP y Guardar foto. */
+async function prepararHojasJPG(){
+  recalcular();
+  const lay = calcularLayout(leerCm(anchoInput), leerCm(altoInput));
+  const g = geometriaPagina(lay);
+  const visibles = tiles.filter(t => !t.empty);
+  const tij = { 0: tijeraPNG(0), 90: tijeraPNG(90) };
+  const dos = n => String(n).padStart(2,'0');
+  const out = [];
+  for(let idx = 0; idx < visibles.length; idx++){
+    const t = visibles[idx];
+    const tileCanvas = document.createElement('canvas');
+    tileCanvas.width = t.w; tileCanvas.height = t.h;
+    const tctx = tileCanvas.getContext('2d');
+    tctx.fillStyle = '#FFFFFF';
+    tctx.fillRect(0,0,t.w,t.h);
+    tctx.drawImage(masterCanvas, t.x, t.y, t.w, t.h, 0,0,t.w,t.h);
+
+    const hoja = dibujarHojaCanvas(document.createElement('canvas'), lay, g, t, idx, visibles.length, PPI, tileCanvas, tij);
+    const blob = await new Promise(r => hoja.toBlob(r, 'image/jpeg', 0.95));
+    if(!blob) throw new Error('no se pudo crear la imagen de la hoja ' + (idx+1));
+    const bytes = jpegConDPI(await blob.arrayBuffer(), PPI);
+    out.push({
+      name: `hoja-${dos(idx+1)}_fila-${t.row+1}_col-${t.col+1}.jpg`,
+      etiqueta: `Hoja ${idx+1} · Fila ${t.row+1} - Col ${t.col+1}`,
+      bytes
+    });
+  }
+  return out;
+}
+
+/* ---------- Exportar ZIP: un solo archivo .zip con una JPG por hoja, a tamaño real ---------- */
+async function exportarZIP(){
+  try{
+    if(!window.JSZip){
+      showToast('⚠️ La librería JSZip no cargó (revisa tu conexión) y no se pudo generar el ZIP');
+      return;
+    }
+    const hojas = await prepararHojasJPG();
+    const zip = new JSZip();
+    hojas.forEach(h => zip.file(h.name, h.bytes));
+
+    const zipBlob = await zip.generateAsync({ type:'blob' });
+    const ok = await guardarArchivo(zipBlob, nombreArchivoBase() + '.zip');
+    showToast(ok ? '✅ ZIP listo · al imprimir elige "Tamaño real" o 100%' : 'Descarga cancelada');
+  }catch(err){
+    console.error(err);
+    showToast('⚠️ Error al generar el ZIP: ' + err.message);
+  }
 }
 
 /* ---------- Botones secundarios ---------- */
-el('btnWA').addEventListener('click', generarImagenRedes);
+el('btnFoto').addEventListener('click', guardarFoto);
+el('btnWA').addEventListener('click', compartirEnRedes);
+el('fotoCerrar').addEventListener('click', () => {
+  el('fotoOverlay').classList.remove('show');
+  _fotoURLs.forEach(u => URL.revokeObjectURL(u)); _fotoURLs = [];
+});
 
 el('btnPrint').addEventListener('click', () => {
   if(!masterCanvas){ showToast('Primero sube una imagen'); return; }
@@ -2139,8 +2289,7 @@ el('btnPrint').addEventListener('click', () => {
 });
 
 /* ---------- Imagen cuadrada 1080x1080 para redes sociales ---------- */
-async function generarImagenRedes(){
-  if(!masterCanvas){ showToast('Primero sube una imagen'); return; }
+function crearImagenRedes(){
 
   const S = 1080;
   const c = document.createElement('canvas');
@@ -2208,32 +2357,118 @@ async function generarImagenRedes(){
     : 'mi-poster';
   const filename = slug + '-redes.png';
 
-  c.toBlob(async (blob) => {
-    if(!blob){ showToast('No se pudo generar la imagen'); return; }
+  return { canvas: c, filename };
+}
 
-    // Compartir nativo (celular): abre Facebook, Instagram, WhatsApp, etc.
-    const file = new File([blob], filename, { type: 'image/png' });
-    if(navigator.canShare && navigator.canShare({ files:[file] })){
-      try{
-        await navigator.share({
-          files: [file],
-          title: 'Mi póster gigante',
-          text: 'Hecho con Élite Creativa Estudio ✨'
-        });
-        return;
-      }catch(e){
-        if(e.name === 'AbortError') return; // la usuaria canceló
-      }
+// Convierte el canvas en archivo SIN esperar (así el menú de compartir no pierde el toque de la usuaria)
+function canvasAArchivo(c, filename){
+  const dataURL = c.toDataURL('image/png');
+  const bin = atob(dataURL.split(',')[1]);
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  const blob = new Blob([bytes], { type:'image/png' });
+  return { dataURL, blob, file: new File([blob], filename, { type:'image/png' }) };
+}
+
+function esTelefono(){
+  return (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) ||
+         /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+         (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform || ''));
+}
+
+let _fotoArchivos = [];
+let _fotoURLs = [];
+
+// Muestra una o varias imágenes; se guardan manteniendo el dedo encima
+function mostrarFotos(items, texto){
+  _fotoURLs.forEach(u => URL.revokeObjectURL(u));
+  _fotoURLs = [];
+  const lista = el('fotoLista');
+  lista.innerHTML = '';
+  items.forEach(it => {
+    const url = it.dataURL || URL.createObjectURL(it.blob);
+    if(!it.dataURL) _fotoURLs.push(url);
+    const cap = document.createElement('p');
+    cap.style.cssText = 'margin:12px 0 6px;font-weight:700;color:var(--ink);font-size:13px;';
+    cap.textContent = it.etiqueta;
+    const im = document.createElement('img');
+    im.src = url; im.alt = it.etiqueta;
+    im.style.cssText = 'display:block;width:100%;height:auto;border-radius:10px;border:1px solid #EEE;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;';
+    lista.appendChild(cap); lista.appendChild(im);
+  });
+  _fotoArchivos = items.map(it => it.file).filter(Boolean);
+  const puede = _fotoArchivos.length && navigator.canShare && navigator.canShare({ files:_fotoArchivos });
+  el('fotoTodas').style.display = puede ? 'block' : 'none';
+  el('fotoTexto').innerHTML = texto;
+  el('fotoOverlay').classList.add('show');
+}
+
+function mostrarFoto(dataURL, texto){
+  mostrarFotos([{ dataURL, etiqueta:'Foto de tu póster' }],
+    texto || 'Mantén el dedo sobre la imagen y elige <b>"Guardar en Fotos"</b>.');
+}
+
+el('fotoTodas').addEventListener('click', async () => {
+  try{
+    await navigator.share({ files:_fotoArchivos, title:'Mi póster gigante', text:'Hecho con Élite Creativa Estudio ✨' });
+  }catch(e){
+    if(e.name !== 'AbortError') showToast('Aquí no se pudo abrir el menú · mantén el dedo sobre cada imagen');
+  }
+});
+
+/* 📸 Guardar foto
+   Teléfono/iPad: foto de presentación + una foto por hoja (tamaño real) para guardarlas o compartirlas.
+   Computadora: descarga la foto de presentación (las hojas para imprimir van en el ZIP). */
+async function guardarFoto(){
+  if(!masterCanvas){ showToast('Primero sube una imagen'); return; }
+  const { canvas, filename } = crearImagenRedes();
+  const a = canvasAArchivo(canvas, filename);
+
+  if(!esTelefono()){
+    const ok = await guardarArchivo(a.blob, filename);
+    showToast(ok ? '📸 Foto guardada en Descargas · las hojas para imprimir están en ZIP' : 'Descarga cancelada');
+    return;
+  }
+
+  try{
+    showToast('📸 Preparando tus fotos...');
+    const hojas = await prepararHojasJPG();
+    const items = [{ dataURL:a.dataURL, file:a.file, etiqueta:'Foto de tu póster' }];
+    hojas.forEach(h => {
+      const blob = new Blob([h.bytes], { type:'image/jpeg' });
+      items.push({ blob, file:new File([blob], h.name, { type:'image/jpeg' }), etiqueta:h.etiqueta });
+    });
+    mostrarFotos(items,
+      `Aquí están tu foto y las ${hojas.length} hojas del póster a tamaño real. ` +
+      'Toca <b>"Guardar o compartir todas"</b> y elige <b>"Guardar imágenes"</b> o la app de tu red social. ' +
+      'Si ese botón no aparece, mantén el dedo sobre cada imagen y elige <b>"Guardar en Fotos"</b>.');
+  }catch(err){
+    console.error(err);
+    showToast('⚠️ No se pudieron preparar las fotos: ' + err.message);
+  }
+}
+
+/* 📲 Compartir en redes: abre el menú del teléfono (Facebook, Instagram, WhatsApp, Correo...) */
+async function compartirEnRedes(){
+  if(!masterCanvas){ showToast('Primero sube una imagen'); return; }
+  const { canvas, filename } = crearImagenRedes();
+  const a = canvasAArchivo(canvas, filename);
+
+  if(navigator.canShare && navigator.canShare({ files:[a.file] })){
+    try{
+      await navigator.share({ files:[a.file], title:'Mi póster gigante', text:'Hecho con Élite Creativa Estudio ✨' });
+      return;
+    }catch(e){
+      if(e.name === 'AbortError') return;   // la usuaria cerró el menú
     }
-
-    // Escritorio: descarga la imagen lista para subir
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 1500);
-    showToast('📲 Imagen lista para subir a tus redes');
-  }, 'image/png');
+  }
+  // No se pudo abrir el menú de compartir
+  if(esTelefono()){
+    mostrarFoto(a.dataURL, 'Aquí no se pudo abrir el menú de compartir. Mantén el dedo sobre la imagen, elige <b>"Guardar en Fotos"</b> y súbela desde tu app de Facebook o Instagram.');
+    return;
+  }
+  const ok = await guardarArchivo(a.blob, filename);
+  showToast(ok ? '📲 Imagen descargada · súbela a tus redes desde tu computadora' : 'Descarga cancelada');
 }
 
 /* ---------- Toast ---------- */
