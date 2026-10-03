@@ -84,14 +84,15 @@
     font-size:14.5px;
   }
   .wrap{
-    max-width:1080px;
+    max-width:1480px;
     margin:0 auto;
     padding:20px;
     display:grid;
-    grid-template-columns: 1.25fr 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(330px, 0.85fr);
     gap:24px;
+    align-items:start;
   }
-  @media (max-width: 860px){ .wrap{grid-template-columns:1fr;} }
+  @media (max-width: 1000px){ .wrap{grid-template-columns:1fr;} }
 
   .card{
     background:var(--white);
@@ -129,21 +130,17 @@
     position:relative;
     border-radius:16px;
     overflow:hidden;
-    background:
-      linear-gradient(45deg,#f1f1f1 25%,transparent 25%),
-      linear-gradient(-45deg,#f1f1f1 25%,transparent 25%),
-      linear-gradient(45deg,transparent 75%,#f1f1f1 75%),
-      linear-gradient(-45deg,transparent 75%,#f1f1f1 75%);
-    background-size:20px 20px;
-    background-position:0 0,0 10px,10px -10px,-10px 0px;
+    background:#232027;
     border:2px solid #FBCFE8;
-    min-height:260px;
+    min-height:520px;
     display:flex;
     align-items:center;
     justify-content:center;
+    padding:10px;
   }
+  @media (max-width: 1000px){ .preview-shell{ min-height:380px; } }
   #previewCanvas{ max-width:100%; display:block; }
-  .empty-preview{ color:#C79ED0; font-size:13px; font-family:'DM Sans',sans-serif; padding:40px; text-align:center; }
+  .empty-preview{ color:#D9C8E6; font-size:13px; font-family:'DM Sans',sans-serif; padding:40px; text-align:center; }
 
   .toolbar{
     display:flex;
@@ -187,6 +184,213 @@
     font-size:12.5px; color:var(--ink-soft); cursor:pointer; user-select:none;
   }
   .lock-row input{ accent-color:var(--pink); width:15px;height:15px; }
+
+  /* Plantillas */
+  /* Colocación de la imagen */
+  .mover-hint{
+    text-align:center; font-size:11.5px; color:var(--ink-soft);
+    margin-top:9px; line-height:1.5;
+  }
+  .colocacion{
+    margin-top:11px; padding:13px;
+    border:1.5px solid var(--line); border-radius:14px; background:#FFFAFD;
+  }
+  .coloc-head{
+    display:flex; align-items:baseline; justify-content:space-between; margin-bottom:5px;
+  }
+  .coloc-vals{ display:flex; gap:10px; align-items:baseline; }
+  .coloc-vals #medidaImg{ font-size:11.5px; color:var(--ink-soft); }
+  .coloc-vals b{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:13px; color:var(--pink-dark);
+  }
+  .coloc-btns{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
+  .coloc-btn{
+    padding:8px 4px; border-radius:11px; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:11.5px;
+  }
+  .coloc-btn:hover{ border-color:var(--pink); background:#FFF3FA; color:var(--pink-dark); }
+
+  #previewCanvas{ cursor:grab; touch-action:none; }
+
+  /* Selector de vista */
+  .vista-switch{
+    display:grid; grid-template-columns:1fr 1fr; gap:7px; margin:14px 0 12px;
+    background:#FBF4FB; padding:4px; border-radius:14px;
+  }
+  .vista-btn{
+    padding:9px 4px; border-radius:11px; text-align:center; cursor:pointer;
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:12.5px;
+    color:var(--ink-soft); transition:.15s;
+  }
+  .vista-btn.active{ background:#fff; color:var(--pink-dark); box-shadow:var(--shadow-sm); }
+
+  /* Lienzo de hojas */
+  .hojas-shell{
+    border-radius:16px; border:2px solid #FBCFE8; background:#232027;
+    min-height:520px; display:flex; align-items:center; justify-content:center;
+    padding:16px; overflow:hidden;
+  }
+  @media (max-width: 1000px){ .hojas-shell{ min-height:380px; } }
+  #hojasCanvas{ max-width:100%; display:block; }
+  .hojas-nota{
+    text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:9px;
+  }
+
+  /* Barra de botoncitos */
+  .minibar{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:12px;
+  }
+  .mini-btn{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:9px 4px; border-radius:12px; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff;
+  }
+  .mini-btn:hover{ border-color:var(--pink); background:#FFFAFD; }
+  .mini-btn.active{ border-color:var(--pink); background:#FFF3FA; }
+  .mini-btn .ic{ font-size:16px; line-height:1; }
+  .mini-btn .nm{
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:10.5px; color:var(--ink-soft);
+  }
+  .mini-btn.active .nm{ color:var(--pink-dark); }
+
+  .mini-panel{
+    display:none; margin-top:9px; padding:13px;
+    border:1.5px solid var(--pink); border-radius:13px; background:#FFFAFD;
+  }
+  .mini-panel.open{ display:block; }
+  .mini-panel-ttl{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:12.5px;
+    color:var(--pink-dark); margin-bottom:9px;
+  }
+  .opt-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .opt{
+    padding:7px 13px; border-radius:999px; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:11.5px;
+  }
+  .opt:hover{ border-color:var(--pink); }
+  .opt.active{ border-color:var(--pink); background:var(--pink) !important; color:#fff !important; }
+  .opt-hint{ font-size:10.5px; color:var(--ink-soft); margin-top:8px; line-height:1.45; }
+
+  .tpl-toggle{
+    width:100%; display:flex; align-items:center; justify-content:space-between;
+    padding:11px 14px; margin-bottom:0;
+    border:1.5px solid var(--line); border-radius:13px; background:#FFFAFD;
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:13px;
+    color:var(--ink); cursor:pointer;
+  }
+  .tpl-toggle:hover{ border-color:var(--pink); background:#FFF3FA; }
+  .tpl-toggle .chev{ color:var(--pink-dark); transition:transform .2s; font-size:11px; }
+  .tpl-toggle.open{ border-color:var(--pink); background:#FFF3FA; border-bottom-left-radius:0; border-bottom-right-radius:0; }
+  .tpl-toggle.open .chev{ transform:rotate(180deg); }
+
+  .tpl-panel{
+    display:none;
+    border:1.5px solid var(--pink); border-top:none;
+    border-bottom-left-radius:13px; border-bottom-right-radius:13px;
+    padding:12px; background:#fff;
+  }
+  .tpl-panel.open{ display:block; }
+
+  .tpl-tabs{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:10px; }
+  .tpl-tab{
+    padding:8px 4px; border-radius:11px; text-align:center;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:12.5px; cursor:pointer;
+  }
+  .tpl-tab.active{ border-color:var(--pink); background:#FFF3FA; color:var(--pink-dark); }
+
+  .tpl-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    max-height:230px; overflow-y:auto; padding:2px;
+  }
+  .tpl-card{
+    border:1.5px solid var(--line); border-radius:13px; background:#fff;
+    padding:9px 6px; text-align:center; cursor:pointer; transition:.15s;
+  }
+  .tpl-card:hover{ border-color:var(--pink); background:#FFFAFD; }
+  .tpl-card.active{ border-color:var(--pink); background:#FFF3FA; }
+  .tpl-mini{
+    width:100%; height:46px; display:flex; align-items:center; justify-content:center;
+    margin-bottom:5px;
+  }
+  .tpl-mini svg{ max-height:46px; }
+  .tpl-nm{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:11.5px; color:var(--ink);
+    display:block; line-height:1.2;
+  }
+  .tpl-sub{ font-size:9.5px; color:var(--ink-soft); display:block; margin-top:1px; }
+  .tpl-card.active .tpl-nm{ color:var(--pink-dark); }
+
+  .divisor{
+    display:flex; align-items:center; gap:10px;
+    margin:16px 0 13px; color:var(--ink-soft); font-size:11.5px;
+  }
+  .divisor::before, .divisor::after{
+    content:''; flex:1; height:1px; background:var(--line);
+  }
+
+  .unidad-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:-4px 0 14px; font-size:12.5px; color:var(--ink-soft);
+  }
+  .unidad-switch{ display:flex; gap:5px; }
+  .uni-btn{
+    padding:5px 12px; border-radius:999px; cursor:pointer;
+    border:1.5px solid var(--line); background:#fff; color:var(--ink-soft);
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:11.5px;
+  }
+  .uni-btn.active{ border-color:var(--pink); background:#FFF3FA; color:var(--pink-dark); }
+
+  /* Regla */
+  .ruler-wrap{
+    display:grid;
+    grid-template-columns: 26px 1fr;
+    grid-template-rows: 22px 1fr;
+    margin-top:14px;
+  }
+  .ruler-corner{
+    background:#2E2A33; border-right:1px solid #3D3844; border-bottom:1px solid #3D3844;
+    border-top-left-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; color:#CFC6DA; font-weight:700;
+  }
+  .ruler-top{
+    background:#2E2A33; border-bottom:1px solid #3D3844;
+    border-top-right-radius:10px; overflow:hidden; position:relative;
+  }
+  .ruler-left{
+    background:#2E2A33; border-right:1px solid #3D3844;
+    border-bottom-left-radius:10px; overflow:hidden; position:relative;
+  }
+  .ruler-top canvas, .ruler-left canvas{ display:block; }
+
+  /* Modal de baja resolución */
+  .lowres-modal{
+    background:#fff; border-radius:20px; padding:0; width:90%; max-width:360px;
+    box-shadow:var(--shadow); overflow:hidden;
+  }
+  .lowres-head{
+    background:linear-gradient(135deg,var(--pink),#a855f7);
+    padding:18px 22px; color:#fff;
+  }
+  .lowres-head h3{
+    font-family:'Baloo 2',sans-serif; margin:0; font-size:16px; color:#fff;
+  }
+  .lowres-body{ padding:18px 22px 22px; }
+  .lowres-body p{ font-size:13.5px; color:var(--ink); margin:0 0 6px; line-height:1.5; }
+  .lowres-body .det{ font-size:12px; color:var(--ink-soft); margin:0 0 16px; line-height:1.5; }
+  .lowres-body .det b{ color:var(--pink-dark); }
+  .lowres-btns{ display:flex; flex-direction:column; gap:8px; }
+  .lowres-btns button{
+    padding:11px; border-radius:12px; border:none; cursor:pointer;
+    font-family:'Baloo 2',sans-serif; font-weight:600; font-size:13.5px;
+  }
+  .lowres-btns .primary{ background:var(--pink) !important; color:#fff !important; }
+  .lowres-btns .ghost{
+    background:#fff; color:var(--pink-dark); border:1.5px solid var(--pink);
+  }
 
   .auto-crop-btn{
     width:100%;
@@ -282,7 +486,7 @@
   .btn-main:hover{ background:var(--pink-dark) !important; }
   .btn-main:disabled{ opacity:.5; cursor:not-allowed; }
 
-  .row-secondary{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .row-secondary{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
   .btn-sec{
     padding:10px 6px; border-radius:12px; border:none;
     font-family:'Baloo 2',sans-serif; font-weight:600; font-size:12px;
@@ -357,15 +561,99 @@
 
     <button id="autoRecortarBtn" class="auto-crop-btn" disabled>✂️ Auto recortar bordes vacíos</button>
 
-    <div class="preview-shell" id="previewShell" style="margin-top:14px;">
-      <div class="empty-preview" id="emptyPreview">Aquí verás tu imagen con la cuadrícula de hojas 🍎</div>
-      <canvas id="previewCanvas" style="display:none;"></canvas>
+    <div class="vista-switch">
+      <div class="vista-btn active" data-vista="diseno">🎨 Diseño</div>
+      <div class="vista-btn" data-vista="hojas">📄 Cómo se imprime</div>
     </div>
 
-    <div class="toolbar">
-      <button id="zoomOut" title="Alejar">➖</button>
-      <button id="zoomIn" title="Acercar">➕</button>
-      <button id="fitBtn" title="Ajustar">🔳</button>
+    <div id="vistaDiseno">
+      <div class="ruler-wrap">
+        <div class="ruler-corner" id="rulerUnit">cm</div>
+        <div class="ruler-top"><canvas id="rulerTop" height="22"></canvas></div>
+        <div class="ruler-left"><canvas id="rulerLeft" width="26"></canvas></div>
+        <div class="preview-shell" id="previewShell">
+          <div class="empty-preview" id="emptyPreview">Aquí verás tu imagen con la cuadrícula de hojas 🍎</div>
+          <canvas id="previewCanvas" style="display:none;"></canvas>
+        </div>
+      </div>
+
+      <div class="mover-hint" id="moverHint">
+        👆 Arrastra la imagen para acomodarla · pellizca o usa la rueda para su tamaño
+      </div>
+
+      <div class="colocacion">
+        <div class="coloc-head">
+          <label style="margin:0;">Tamaño de la imagen</label>
+          <span class="coloc-vals">
+            <span id="medidaImg">—</span>
+            <b id="escalaVal">100%</b>
+          </span>
+        </div>
+        <input type="range" id="escalaImg" min="15" max="400" value="100">
+        <div class="coloc-btns">
+          <button class="coloc-btn" id="btnCentrar">🎯 Centrar</button>
+          <button class="coloc-btn" id="btnAjustar2">🔳 Ajustar</button>
+          <button class="coloc-btn" id="btnCubrir">⬛ Cubrir</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="vistaHojas" style="display:none;">
+      <div class="hojas-shell" id="hojasShell">
+        <div class="empty-preview" id="emptyHojas">Sube tu imagen para ver cómo saldrán las hojas 📄</div>
+        <canvas id="hojasCanvas" style="display:none;"></canvas>
+      </div>
+
+      <div class="hojas-nota" id="hojasNota"></div>
+
+      <div class="minibar">
+        <button class="mini-btn" data-panel="margen"><span class="ic">📏</span><span class="nm">Margen</span></button>
+        <button class="mini-btn" data-panel="tijeras"><span class="ic">✂️</span><span class="nm">Tijeras</span></button>
+        <button class="mini-btn" data-panel="lineas"><span class="ic">┄</span><span class="nm">Líneas</span></button>
+        <button class="mini-btn" data-panel="numeros"><span class="ic">🔢</span><span class="nm">Números</span></button>
+      </div>
+
+      <div class="mini-panel" id="panelMargen">
+        <div class="mini-panel-ttl">📏 Margen de impresión</div>
+        <div class="opt-row">
+          <div class="opt" data-margen="0">0</div>
+          <div class="opt" data-margen="0.64">0.25"</div>
+          <div class="opt active" data-margen="1.27">0.5"</div>
+          <div class="opt" data-margen="1.9">0.75"</div>
+          <div class="opt" data-margen="2.54">1"</div>
+        </div>
+        <div class="opt-hint">Casi ninguna impresora llega hasta la orilla del papel. Si tu dibujo sale cortado, sube el margen.</div>
+      </div>
+
+      <div class="mini-panel" id="panelTijeras">
+        <div class="mini-panel-ttl">✂️ Marcas de tijera</div>
+        <div class="opt-row">
+          <div class="opt active" data-tijeras="on">Mostrar</div>
+          <div class="opt" data-tijeras="off">Ocultar</div>
+        </div>
+        <div class="opt-hint">Te indican por dónde empezar a cortar cada hoja.</div>
+      </div>
+
+      <div class="mini-panel" id="panelLineas">
+        <div class="mini-panel-ttl">┄ Líneas de corte</div>
+        <div class="opt-row">
+          <div class="opt" data-lineas="off">Ninguna</div>
+          <div class="opt active" data-lineas="dashed">Punteadas</div>
+          <div class="opt" data-lineas="solid">Sólidas</div>
+          <div class="opt" data-lineas="corners">Esquinas</div>
+        </div>
+        <div class="opt-hint">Marcan dónde termina el dibujo en cada hoja.</div>
+      </div>
+
+      <div class="mini-panel" id="panelNumeros">
+        <div class="mini-panel-ttl">🔢 Numeración</div>
+        <div class="opt-row">
+          <div class="opt" data-numeros="off">Sin números</div>
+          <div class="opt active" data-numeros="colfila">Fila y columna</div>
+          <div class="opt" data-numeros="orden">En orden</div>
+        </div>
+        <div class="opt-hint">Te ayuda a saber qué hoja va en qué posición al armar.</div>
+      </div>
     </div>
   </div>
 
@@ -375,12 +663,53 @@
 
     <div class="grid2">
       <div>
-        <label>Ancho final (cm)</label>
+        <label>📄 Papel</label>
+        <select id="papelSelect">
+          <option value="A4">A4 (21 x 29.7 cm)</option>
+          <option value="Carta">Carta (21.6 x 27.9 cm)</option>
+          <option value="Oficio">Oficio (21.6 x 35.5 cm)</option>
+        </select>
+      </div>
+      <div>
+        <label>🔄 Orientación</label>
+        <select id="orientSelect">
+          <option value="auto">Automático</option>
+          <option value="portrait">Vertical</option>
+          <option value="landscape">Horizontal</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="tpl-toggle" id="tplToggle">
+      <span>📐 Elegir un tamaño listo</span>
+      <span class="chev">▾</span>
+    </button>
+    <div class="tpl-panel" id="tplPanel">
+      <div class="tpl-tabs">
+        <div class="tpl-tab active" data-tab="rejilla">Por hojas</div>
+        <div class="tpl-tab" data-tab="poster">Por tamaño</div>
+      </div>
+      <div class="tpl-grid" id="tplGrid"></div>
+    </div>
+
+    <div class="divisor"><span>o pon tu medida</span></div>
+
+    <div class="grid2">
+      <div>
+        <label>Ancho final (<span class="u">cm</span>)</label>
         <input type="number" id="anchoInput" value="60" min="1" step="0.1">
       </div>
       <div>
-        <label>Alto final (cm)</label>
+        <label>Alto final (<span class="u">cm</span>)</label>
         <input type="number" id="altoInput" value="60" min="1" step="0.1">
+      </div>
+    </div>
+
+    <div class="unidad-row">
+      <span>Unidad</span>
+      <div class="unidad-switch">
+        <div class="uni-btn active" data-uni="cm">cm</div>
+        <div class="uni-btn" data-uni="in">pulgadas</div>
       </div>
     </div>
 
@@ -399,25 +728,6 @@
         <div class="aviso-opt">
           <div class="aviso-opt-txt" id="opcionB"></div>
         </div>
-      </div>
-    </div>
-
-    <div class="grid2">
-      <div>
-        <label>Papel</label>
-        <select id="papelSelect">
-          <option value="A4">A4 (21 x 29.7 cm)</option>
-          <option value="Carta">Carta (21.6 x 27.9 cm)</option>
-          <option value="Oficio">Oficio (21.6 x 35.5 cm)</option>
-        </select>
-      </div>
-      <div>
-        <label>Orientación</label>
-        <select id="orientSelect">
-          <option value="auto">Automático</option>
-          <option value="portrait">Vertical</option>
-          <option value="landscape">Horizontal</option>
-        </select>
       </div>
     </div>
 
@@ -454,9 +764,8 @@
     <button class="btn-main" id="generarBtn" disabled>⬇️ Generar Póster</button>
 
     <div class="row-secondary">
-      <button class="btn-sec wa" id="btnWA">💬 Compartir</button>
+      <button class="btn-sec wa" id="btnWA">📲 Compartir en redes</button>
       <button class="btn-sec print" id="btnPrint">🖨️ Imprimir</button>
-      <button class="btn-sec share" id="btnLink">🔗 Enlace 24h</button>
     </div>
   </div>
 
@@ -470,6 +779,22 @@
     <div class="modal-btns">
       <button class="cancel" id="modalCancel">Cancelar</button>
       <button class="ok" id="modalOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="lowresOverlay">
+  <div class="lowres-modal">
+    <div class="lowres-head">
+      <h3>✨ Tu imagen podría verse borrosa</h3>
+    </div>
+    <div class="lowres-body">
+      <p id="lowresTexto"></p>
+      <p class="det" id="lowresDetalle"></p>
+      <div class="lowres-btns">
+        <button class="primary" id="lowresAjustar">Ajustar al tamaño recomendado</button>
+        <button class="ghost" id="lowresSeguir">Continuar así</button>
+      </div>
     </div>
   </div>
 </div>
@@ -534,12 +859,14 @@ fileInput.addEventListener('change', e => {
       img = image;
       aspectRatio = img.naturalWidth / img.naturalHeight;
       if(lockProp.checked){
-        altoInput.value = (parseFloat(anchoInput.value) / aspectRatio).toFixed(1);
+        altoInput.value = toUnidad(leerCm(anchoInput) / aspectRatio);
       }
       emptyPreview.style.display = 'none';
       previewCanvas.style.display = 'block';
       generarBtn.disabled = false;
       document.getElementById('autoRecortarBtn').disabled = false;
+      resetTf();
+      sincronizarSliderEscala();
       const maxW = ((img.naturalWidth / 150) * CM_PER_INCH).toFixed(0);
       const maxH = ((img.naturalHeight / 150) * CM_PER_INCH).toFixed(0);
       showToast(`📐 ${img.naturalWidth}x${img.naturalHeight} px · máximo recomendado: ${maxW} x ${maxH} cm`);
@@ -549,6 +876,651 @@ fileInput.addEventListener('change', e => {
   };
   reader.readAsDataURL(file);
 });
+
+/* ---------- Cálculo compartido: pantalla y PDF usan exactamente lo mismo ---------- */
+
+// Decide orientación, columnas y filas usando SOLO el área imprimible.
+// Si la orientación es automática, elige la que necesite menos hojas.
+function calcularLayout(anchoCm, altoCm){
+  const papel = PAPERS[papelSelect.value];
+  const m = impr.margenCm;
+
+  const probar = (orient) => {
+    let pw = papel.w, ph = papel.h;
+    if(orient === 'landscape'){ [pw, ph] = [ph, pw]; }
+    const aw = pw - m*2, ah = ph - m*2;
+    // Tolerancia de 0.05 cm: absorbe el redondeo de los campos sin recortar el dibujo
+    const cols = Math.max(1, Math.ceil((anchoCm - 0.05) / aw));
+    const rows = Math.max(1, Math.ceil((altoCm  - 0.05) / ah));
+    return { orient, pW:pw, pH:ph, areaW:aw, areaH:ah, cols, rows, hojas: cols*rows };
+  };
+
+  let lay;
+  if(orientSelect.value === 'auto'){
+    const v = probar('portrait'), h = probar('landscape');
+    lay = (h.hojas < v.hojas) ? h : v;
+  } else {
+    lay = probar(orientSelect.value);
+  }
+  // Cada hoja aporta su área imprimible completa. El póster se centra sobre
+  // toda la cuadrícula, y lo que sobra se reparte entre las hojas de las orillas.
+  lay.gridW = lay.cols * lay.areaW;
+  lay.gridH = lay.rows * lay.areaH;
+  lay.posX  = (lay.gridW - anchoCm) / 2;   // dónde empieza el póster dentro de la cuadrícula
+  lay.posY  = (lay.gridH - altoCm)  / 2;
+  lay.anchoCm = anchoCm;
+  lay.altoCm  = altoCm;
+  return lay;
+}
+
+// Marco de cada hoja: el área imprimible, justo dentro del margen elegido
+function geometriaPagina(lay){
+  const m = impr.margenCm;
+  return { offX: m, offY: m, w: lay.areaW, h: lay.areaH };
+}
+
+// Qué parte del póster cae en la hoja (col, row), en cm.
+// Devuelve null si a esa hoja no le toca nada del póster.
+function pedazoDeHoja(lay, col, row){
+  const gx0 = col * lay.areaW, gx1 = gx0 + lay.areaW;
+  const gy0 = row * lay.areaH, gy1 = gy0 + lay.areaH;
+  const ix0 = Math.max(gx0, lay.posX), ix1 = Math.min(gx1, lay.posX + lay.anchoCm);
+  const iy0 = Math.max(gy0, lay.posY), iy1 = Math.min(gy1, lay.posY + lay.altoCm);
+  if(ix1 - ix0 < 0.01 || iy1 - iy0 < 0.01) return null;
+  return {
+    // Parte del póster (en cm, medido desde la esquina del póster)
+    srcX: ix0 - lay.posX, srcY: iy0 - lay.posY,
+    w: ix1 - ix0,         h: iy1 - iy0,
+    // Dónde va dentro de la hoja (en cm, medido desde la esquina del papel)
+    dX: impr.margenCm + (ix0 - gx0),
+    dY: impr.margenCm + (iy0 - gy0)
+  };
+}
+
+// Lista de trazos de corte para una página, en cm.
+// Las líneas cruzan la hoja completa de orilla a orilla, como en las apps de pósters.
+function trazosCorte(lay, g){
+  const L = [];
+  if(impr.margenCm < 0.05) return L;   // sin margen, las líneas caerían en la orilla del papel
+  const x1 = g.offX, x2 = g.offX + g.w;
+  const y1 = g.offY, y2 = g.offY + g.h;
+
+  if(impr.lineas === 'dashed' || impr.lineas === 'solid'){
+    L.push([0, y1, lay.pW, y1]);   // horizontal superior
+    L.push([0, y2, lay.pW, y2]);   // horizontal inferior
+    L.push([x1, 0, x1, lay.pH]);   // vertical izquierda
+    L.push([x2, 0, x2, lay.pH]);   // vertical derecha
+  } else if(impr.lineas === 'corners'){
+    // Marcas de esquina: solo en el margen, sin tocar el dibujo
+    const gap = 0.15;
+    L.push([0, y1, x1 - gap, y1]); L.push([x1, 0, x1, y1 - gap]);
+    L.push([x2 + gap, y1, lay.pW, y1]); L.push([x2, 0, x2, y1 - gap]);
+    L.push([0, y2, x1 - gap, y2]); L.push([x1, y2 + gap, x1, lay.pH]);
+    L.push([x2 + gap, y2, lay.pW, y2]); L.push([x2, y2 + gap, x2, lay.pH]);
+  }
+  return L;
+}
+
+// Dónde van las tijeritas: sobre las líneas, en la franja del margen (nunca encima del dibujo)
+function posTijeras(lay, g){
+  const P = [];
+  const x1 = g.offX, x2 = g.offX + g.w;
+  const y1 = g.offY, y2 = g.offY + g.h;
+  if(y1 > 0.5){ P.push({x:x1, y:y1/2, rot:90}); P.push({x:x2, y:y1/2, rot:90}); }
+  if(x1 > 0.5){ P.push({x:x1/2, y:y1, rot:0});  P.push({x:x1/2, y:y2, rot:0});  }
+  return P;
+}
+
+// Tijera dibujada como imagen (el PDF no tiene el símbolo ✂ en sus letras)
+const _tijeras = {};
+function tijeraPNG(rot = 0){
+  if(_tijeras[rot]) return _tijeras[rot];
+  const c = document.createElement('canvas');
+  c.width = 96; c.height = 96;
+  const x = c.getContext('2d');
+  x.fillStyle = '#FFFFFF';
+  x.beginPath(); x.arc(48,48,46,0,Math.PI*2); x.fill();
+  x.translate(48,48);
+  x.rotate(rot * Math.PI/180);            // girada desde el centro
+  x.fillStyle = '#4A3F5C';
+  x.font = '66px "Segoe UI Symbol","Apple Symbols","Noto Sans Symbols2","DejaVu Sans",sans-serif';
+  x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText('✂', 0, 4);
+  _tijeras[rot] = c;
+  return c;
+}
+
+/* ---------- Posición y tamaño de la imagen sobre el lienzo ---------- */
+// x e y van de -0.5 a 0.5 (fracción del lienzo); escala 1 = ajustada al lienzo
+const tf = { x:0, y:0, escala:1 };
+
+function resetTf(){ tf.x = 0; tf.y = 0; tf.escala = 1; }
+
+function actualizarMedidaImagen(){
+  if(!img) return;
+  const anchoCm = leerCm(anchoInput), altoCm = leerCm(altoInput);
+  const base = Math.min(anchoCm / img.naturalWidth, altoCm / img.naturalHeight);
+  const w = img.naturalWidth  * base * tf.escala;
+  const h = img.naturalHeight * base * tf.escala;
+  const u = unidad === 'cm' ? 'cm' : 'pulg';
+  el('medidaImg').textContent = `${toUnidad(w)} × ${toUnidad(h)} ${u}`;
+}
+
+/* Arrastrar y escalar sobre la vista previa */
+(function habilitarMover(){
+  const shell = () => el('previewShell');
+  let arrastrando = false, px = 0, py = 0;
+  let pellizcando = false, distIni = 0, escIni = 1;
+
+  const dist = (t1,t2) => Math.hypot(t2.clientX-t1.clientX, t2.clientY-t1.clientY);
+
+  function iniciar(cx, cy){
+    if(!img) return;
+    arrastrando = true; px = cx; py = cy;
+    previewCanvas.style.cursor = 'grabbing';
+  }
+  function mover(cx, cy){
+    if(!arrastrando || !img) return;
+    const r = previewCanvas.getBoundingClientRect();
+    tf.x += (cx - px) / r.width;
+    tf.y += (cy - py) / r.height;
+    tf.x = Math.max(-1.2, Math.min(1.2, tf.x));
+    tf.y = Math.max(-1.2, Math.min(1.2, tf.y));
+    px = cx; py = cy;
+    recalcular();
+  }
+  function soltar(){
+    arrastrando = false; pellizcando = false;
+    previewCanvas.style.cursor = 'grab';
+  }
+
+  // Mouse
+  previewCanvas.addEventListener('mousedown', e => { iniciar(e.clientX, e.clientY); e.preventDefault(); });
+  window.addEventListener('mousemove', e => mover(e.clientX, e.clientY));
+  window.addEventListener('mouseup', soltar);
+
+  // Rueda del mouse para acercar o alejar
+  previewCanvas.addEventListener('wheel', e => {
+    if(!img) return;
+    e.preventDefault();
+    tf.escala = Math.max(0.15, Math.min(4, tf.escala * (e.deltaY < 0 ? 1.07 : 0.93)));
+    sincronizarSliderEscala();
+    recalcular();
+  }, {passive:false});
+
+  // Dedo: arrastrar con uno, pellizcar con dos
+  previewCanvas.addEventListener('touchstart', e => {
+    if(!img) return;
+    if(e.touches.length === 1){
+      iniciar(e.touches[0].clientX, e.touches[0].clientY);
+    } else if(e.touches.length === 2){
+      arrastrando = false; pellizcando = true;
+      distIni = dist(e.touches[0], e.touches[1]);
+      escIni = tf.escala;
+    }
+  }, {passive:true});
+
+  previewCanvas.addEventListener('touchmove', e => {
+    if(!img) return;
+    if(pellizcando && e.touches.length === 2){
+      const f = dist(e.touches[0], e.touches[1]) / distIni;
+      tf.escala = Math.max(0.15, Math.min(4, escIni * f));
+      sincronizarSliderEscala();
+      recalcular();
+      e.preventDefault();
+    } else if(arrastrando && e.touches.length === 1){
+      mover(e.touches[0].clientX, e.touches[0].clientY);
+      e.preventDefault();
+    }
+  }, {passive:false});
+
+  previewCanvas.addEventListener('touchend', soltar);
+  previewCanvas.addEventListener('touchcancel', soltar);
+})();
+
+function sincronizarSliderEscala(){
+  const s = el('escalaImg');
+  if(s) s.value = Math.round(tf.escala * 100);
+  const v = el('escalaVal');
+  if(v) v.textContent = Math.round(tf.escala * 100) + '%';
+  actualizarMedidaImagen();
+}
+
+/* Controles de colocación */
+function enlazarColocacion(){
+  el('escalaImg').addEventListener('input', () => {
+    tf.escala = parseInt(el('escalaImg').value,10) / 100;
+    el('escalaVal').textContent = el('escalaImg').value + '%';
+    recalcular();
+  });
+  el('btnCentrar').addEventListener('click', () => {
+    tf.x = 0; tf.y = 0;
+    recalcular();
+    showToast('🎯 Imagen centrada');
+  });
+  el('btnAjustar2').addEventListener('click', () => {
+    resetTf();
+    sincronizarSliderEscala();
+    recalcular();
+    showToast('🔳 Imagen ajustada al lienzo');
+  });
+  el('btnCubrir').addEventListener('click', () => {
+    const anchoCm = leerCm(anchoInput), altoCm = leerCm(altoInput);
+    const ratioLienzo = anchoCm / altoCm;
+    const ratioImg = img.naturalWidth / img.naturalHeight;
+    tf.x = 0; tf.y = 0;
+    tf.escala = ratioImg > ratioLienzo ? (ratioImg / ratioLienzo) : (ratioLienzo / ratioImg);
+    sincronizarSliderEscala();
+    recalcular();
+    showToast('⬛ Imagen cubriendo todo el lienzo');
+  });
+}
+
+/* ---------- Ajustes de impresión ---------- */
+const impr = {
+  margenCm: 1.27,      // 0.5 pulgada
+  tijeras:  true,
+  lineas:   'dashed',  // off | dashed | solid | corners
+  numeros:  'colfila'  // off | colfila | orden
+};
+let vistaActual = 'diseno';
+
+/* Cambio de vista */
+document.querySelectorAll('.vista-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.vista-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    vistaActual = b.dataset.vista;
+    el('vistaDiseno').style.display = vistaActual === 'diseno' ? 'block' : 'none';
+    el('vistaHojas').style.display  = vistaActual === 'hojas'  ? 'block' : 'none';
+    if(vistaActual === 'hojas') dibujarHojas();
+    else if(img) requestAnimationFrame(() => { fitPreviewToContainer(); dibujarReglas(leerCm(anchoInput), leerCm(altoInput)); });
+  });
+});
+
+/* Botoncitos que abren su panel */
+document.querySelectorAll('.mini-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    const id = 'panel' + b.dataset.panel.charAt(0).toUpperCase() + b.dataset.panel.slice(1);
+    const panel = el(id);
+    const yaAbierto = panel.classList.contains('open');
+
+    document.querySelectorAll('.mini-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.mini-btn').forEach(x => x.classList.remove('active'));
+
+    if(!yaAbierto){
+      panel.classList.add('open');
+      b.classList.add('active');
+    }
+  });
+});
+
+/* Opciones dentro de cada panel */
+function enlazarOpciones(attr, destino, transform){
+  document.querySelectorAll(`.opt[data-${attr}]`).forEach(o => {
+    o.addEventListener('click', () => {
+      o.parentElement.querySelectorAll('.opt').forEach(x=>x.classList.remove('active'));
+      o.classList.add('active');
+      const v = o.dataset[attr];
+      impr[destino] = transform ? transform(v) : v;
+      // El margen cambia cuántas hojas caben: hay que recalcular todo
+      if(destino === 'margenCm' && img) recalcular();
+      else dibujarHojas();
+    });
+  });
+}
+enlazarOpciones('margen',  'margenCm', v => parseFloat(v));
+enlazarOpciones('tijeras', 'tijeras',  v => v === 'on');
+enlazarOpciones('lineas',  'lineas');
+enlazarOpciones('numeros', 'numeros');
+
+/* ---------- Vista de hojas: cómo saldrá impreso ---------- */
+function dibujarHojas(){
+  if(vistaActual !== 'hojas') return;
+  const cv = el('hojasCanvas');
+
+  if(!img || !masterCanvas || !tiles.length){
+    cv.style.display = 'none';
+    el('emptyHojas').style.display = 'block';
+    el('hojasNota').textContent = '';
+    return;
+  }
+  const visibles = tiles.filter(t => !t.empty);
+  if(!visibles.length){ cv.style.display='none'; el('emptyHojas').style.display='block'; return; }
+  el('emptyHojas').style.display = 'none';
+  cv.style.display = 'block';
+
+  const anchoCm = leerCm(anchoInput), altoCm = leerCm(altoInput);
+  const lay = calcularLayout(anchoCm, altoCm);
+  const g = geometriaPagina(lay);
+
+  const col0 = Math.min(...visibles.map(t=>t.col));
+  const row0 = Math.min(...visibles.map(t=>t.row));
+  const cols = Math.max(...visibles.map(t=>t.col)) - col0 + 1;
+  const rows = Math.max(...visibles.map(t=>t.row)) - row0 + 1;
+
+  const PPC = 14;                         // px de pantalla por cm
+  const hojaW = lay.pW * PPC, hojaH = lay.pH * PPC;
+  const SEP = 12;
+
+  cv.width  = Math.round(cols * hojaW + (cols-1) * SEP);
+  cv.height = Math.round(rows * hojaH + (rows-1) * SEP);
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+
+  const tijTam = 0.95 * PPC;              // tamaño de la tijerita en pantalla
+
+  visibles.forEach((t, idx) => {
+    const gx = (t.col - col0) * (hojaW + SEP);
+    const gy = (t.row - row0) * (hojaH + SEP);
+
+    // Hoja de papel
+    ctx.save();
+    ctx.shadowColor = 'rgba(90,60,110,0.22)';
+    ctx.shadowBlur = 7; ctx.shadowOffsetY = 2;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(gx, gy, hojaW, hojaH);
+    ctx.restore();
+
+    // Pedazo del diseño a tamaño real, en su lugar exacto dentro de la hoja
+    if(t.pz){
+      ctx.drawImage(masterCanvas, t.x, t.y, t.w, t.h,
+        gx + t.pz.dX*PPC, gy + t.pz.dY*PPC, t.pz.w*PPC, t.pz.h*PPC);
+    }
+
+    // Líneas de corte (cruzan la hoja completa)
+    const trazos = trazosCorte(lay, g);
+    if(trazos.length){
+      ctx.save();
+      ctx.beginPath(); ctx.rect(gx, gy, hojaW, hojaH); ctx.clip();
+      ctx.strokeStyle = 'rgba(90,78,112,0.9)';
+      ctx.lineWidth = 1.6;
+      ctx.setLineDash(impr.lineas === 'dashed' ? [7,5] : []);
+      trazos.forEach(([ax,ay,bx,by]) => {
+        ctx.beginPath();
+        ctx.moveTo(gx + ax*PPC, gy + ay*PPC);
+        ctx.lineTo(gx + bx*PPC, gy + by*PPC);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // Tijeritas en el margen, sobre las líneas
+    if(impr.tijeras){
+      posTijeras(lay, g).forEach(p => {
+        ctx.drawImage(tijeraPNG(p.rot),
+          gx + p.x*PPC - tijTam/2, gy + p.y*PPC - tijTam/2, tijTam, tijTam);
+      });
+    }
+
+    // Numeración
+    if(impr.numeros !== 'off'){
+      ctx.fillStyle = 'rgba(140,130,160,0.95)';
+      ctx.font = '10px DM Sans, sans-serif';
+      ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+      const txt = impr.numeros === 'orden'
+        ? `${idx+1} / ${visibles.length}`
+        : `Fila ${t.row+1} · Col ${t.col+1}`;
+      ctx.fillText(txt, gx + hojaW - 6, gy + hojaH - 5);
+    }
+  });
+
+  // Escalar al contenedor
+  const shell = el('hojasShell');
+  const maxW = shell.clientWidth - 36;
+  const maxH = Math.max(340, window.innerHeight - 230);
+  const sc = Math.min(maxW / cv.width, maxH / cv.height);
+  cv.style.width  = (cv.width  * sc) + 'px';
+  cv.style.height = (cv.height * sc) + 'px';
+
+  const mTxt = unidad === 'cm'
+    ? impr.margenCm.toFixed(2) + ' cm'
+    : (impr.margenCm/2.54).toFixed(2) + ' pulg';
+  const oTxt = lay.orient === 'landscape' ? 'horizontal' : 'vertical';
+  el('hojasNota').textContent =
+    `${visibles.length} hojas · ${papelSelect.value} ${oTxt} · margen ${mTxt} · cada pedazo a tamaño real`;
+}
+
+/* ---------- Plantillas visibles ---------- */
+let unidad = 'cm';
+const IN_PER_CM = 1/2.54;
+
+// Plantillas por número de hojas (cols x filas)
+const TPL_REJILLA = [
+  [2,2],[2,3],[3,2],[2,4],[3,3],[4,2],
+  [2,5],[3,4],[4,3],[5,2],[3,5],[4,4],[5,3],[4,5],[5,4],[5,5]
+];
+// Plantillas por tamaño de póster (ancho x alto en cm)
+const TPL_POSTER = [
+  {nm:'A3',  w:29.7, h:42},
+  {nm:'A2',  w:42,   h:59.4},
+  {nm:'A1',  w:59.4, h:84.1},
+  {nm:'A0',  w:84.1, h:118.9},
+  {nm:'50×70', w:50, h:70},
+  {nm:'60×90', w:60, h:90},
+  {nm:'70×100',w:70, h:100},
+  {nm:'1×1 m', w:100,h:100},
+  {nm:'Mural', w:150,h:100}
+];
+
+/* Abrir y cerrar el desplegable de plantillas */
+el('tplToggle').addEventListener('click', () => {
+  const abierto = el('tplPanel').classList.toggle('open');
+  el('tplToggle').classList.toggle('open', abierto);
+});
+function cerrarPlantillas(){
+  el('tplPanel').classList.remove('open');
+  el('tplToggle').classList.remove('open');
+}
+
+let tplTab = 'rejilla';
+document.querySelectorAll('.tpl-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tpl-tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    tplTab = t.dataset.tab;
+    renderPlantillas();
+  });
+});
+
+function miniSVG(cols, rows){
+  const W = 54, H = 46;
+  const cw = W/cols, ch = H/rows;
+  let celdas = '';
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      celdas += `<rect x="${c*cw}" y="${r*ch}" width="${cw}" height="${ch}" fill="#FCE7F3" stroke="#EC4899" stroke-width="0.8"/>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${celdas}</svg>`;
+}
+
+function renderPlantillas(){
+  const cont = el('tplGrid');
+  cont.innerHTML = '';
+
+  if(tplTab === 'rejilla'){
+    TPL_REJILLA.forEach(([cols,rows]) => {
+      const card = document.createElement('div');
+      card.className = 'tpl-card';
+      card.innerHTML = `
+        <div class="tpl-mini">${miniSVG(cols,rows)}</div>
+        <span class="tpl-nm">${cols}×${rows}</span>
+        <span class="tpl-sub">${cols*rows} hojas</span>
+      `;
+      card.addEventListener('click', () => aplicarPlantillaRejilla(cols, rows, card));
+      cont.appendChild(card);
+    });
+  } else {
+    TPL_POSTER.forEach(p => {
+      const ratio = p.w / p.h;
+      const cols = Math.max(1, Math.round(p.w / 19));
+      const rows = Math.max(1, Math.round(p.h / 27));
+      const card = document.createElement('div');
+      card.className = 'tpl-card';
+      card.innerHTML = `
+        <div class="tpl-mini">${miniSVG(cols,rows)}</div>
+        <span class="tpl-nm">${p.nm}</span>
+        <span class="tpl-sub">${fmtMedida(p.w)}×${fmtMedida(p.h)} ${unidad}</span>
+      `;
+      card.addEventListener('click', () => aplicarPlantillaPoster(p, card));
+      cont.appendChild(card);
+    });
+  }
+}
+
+function fmtMedida(cm){
+  const v = (unidad === 'cm') ? cm : cm * IN_PER_CM;
+  return v % 1 === 0 ? v.toFixed(0) : v.toFixed(1);
+}
+
+function marcarTpl(card){
+  document.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('active'));
+  if(card) card.classList.add('active');
+}
+
+function aplicarPlantillaRejilla(cols, rows, card){
+  marcarTpl(card);
+  const papel = PAPERS[papelSelect.value];
+  // En automático se usa vertical: así la cuadrícula queda exacta y no gasta hojas de más
+  let orientMode = orientSelect.value;
+  if(orientMode === 'auto') orientMode = 'portrait';
+  let pw = papel.w, ph = papel.h;
+  if(orientMode === 'landscape'){ [pw,ph] = [ph,pw]; }
+
+  // Cada hoja aporta solo su área imprimible (papel menos el margen de cada lado)
+  const m = impr.margenCm;
+  const areaW = pw - m*2, areaH = ph - m*2;
+
+  // Redondeo hacia abajo: si se redondeara hacia arriba, unas centésimas de más
+  // obligarían a agregar una fila o columna entera
+  const piso = (cm) => {
+    const paso = (unidad === 'cm') ? 0.1 : 0.01 / IN_PER_CM;
+    return Math.floor(cm / paso) * paso;
+  };
+  setMedida(piso(cols * areaW), piso(rows * areaH));
+  cerrarPlantillas();
+  el('tplToggle').querySelector('span').textContent = `📐 ${cols}×${rows} · ${cols*rows} hojas`;
+  showToast(`📐 ${cols}×${rows} · ${cols*rows} hojas`);
+}
+
+function aplicarPlantillaPoster(p, card){
+  marcarTpl(card);
+  setMedida(p.w, p.h);
+  cerrarPlantillas();
+  el('tplToggle').querySelector('span').textContent = `📐 ${p.nm} · ${fmtMedida(p.w)}×${fmtMedida(p.h)} ${unidad}`;
+  showToast(`📐 ${p.nm} · ${fmtMedida(p.w)}×${fmtMedida(p.h)} ${unidad}`);
+}
+
+// Fija la medida en cm, mostrándola en la unidad activa
+function setMedida(anchoCm, altoCm){
+  anchoInput.value = toUnidad(anchoCm);
+  altoInput.value  = toUnidad(altoCm);
+  if(img) recalcular();
+}
+function toUnidad(cm){
+  return (unidad === 'cm') ? cm.toFixed(1) : (cm * IN_PER_CM).toFixed(2);
+}
+// Lee los inputs SIEMPRE en cm, sin importar la unidad mostrada
+function leerCm(input){
+  const v = parseFloat(input.value) || 0;
+  return (unidad === 'cm') ? v : v / IN_PER_CM;
+}
+
+/* ---------- Cambio de unidad ---------- */
+document.querySelectorAll('.uni-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    if(b.dataset.uni === unidad) return;
+    const anchoCm = leerCm(anchoInput);
+    const altoCm  = leerCm(altoInput);
+
+    document.querySelectorAll('.uni-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    unidad = b.dataset.uni;
+
+    document.querySelectorAll('.u').forEach(u => u.textContent = unidad === 'cm' ? 'cm' : 'pulg');
+    el('rulerUnit').textContent = unidad === 'cm' ? 'cm' : 'in';
+    anchoInput.value = toUnidad(anchoCm);
+    altoInput.value  = toUnidad(altoCm);
+
+    renderPlantillas();
+    if(img) recalcular(); else dibujarReglas(0,0);
+  });
+});
+
+/* ---------- Reglas ---------- */
+function dibujarReglas(anchoCm, altoCm){
+  const shell = el('previewShell');
+  const wPx = shell.clientWidth;
+  const hPx = shell.clientHeight;
+
+  const top = el('rulerTop'), left = el('rulerLeft');
+  top.width = wPx; top.height = 22;
+  left.height = hPx; left.width = 26;
+
+  const tx = top.getContext('2d');
+  const lx = left.getContext('2d');
+  tx.clearRect(0,0,wPx,22);
+  lx.clearRect(0,0,26,hPx);
+
+  if(!anchoCm || !altoCm) return;
+
+  // Cuánto mide el lienzo dibujado dentro del shell
+  const cvW = previewCanvas.clientWidth || wPx;
+  const cvH = previewCanvas.clientHeight || hPx;
+  const offX = (wPx - cvW)/2;
+  const offY = (hPx - cvH)/2;
+
+  const totalA = (unidad === 'cm') ? anchoCm : anchoCm * IN_PER_CM;
+  const totalB = (unidad === 'cm') ? altoCm  : altoCm  * IN_PER_CM;
+
+  // Elige cada cuánto poner una marca numerada
+  const pasoDe = total => {
+    const opciones = (unidad === 'cm') ? [1,2,5,10,20,50,100] : [0.5,1,2,5,10,20];
+    for(const p of opciones){ if(total / p <= 12) return p; }
+    return opciones[opciones.length-1];
+  };
+  const pasoA = pasoDe(totalA);
+  const pasoB = pasoDe(totalB);
+
+  tx.font = '9px DM Sans, sans-serif';
+  tx.fillStyle = '#D9D0E3';
+  tx.strokeStyle = '#7D7389';
+  tx.lineWidth = 1;
+  tx.textAlign = 'center';
+
+  for(let v=0; v<=totalA + 0.001; v += pasoA/2){
+    const x = offX + (v/totalA)*cvW;
+    const mayor = Math.abs(v % pasoA) < 0.001;
+    tx.beginPath();
+    tx.moveTo(x, mayor ? 10 : 16);
+    tx.lineTo(x, 22);
+    tx.stroke();
+    if(mayor) tx.fillText(v % 1 === 0 ? v : v.toFixed(1), x, 8);
+  }
+
+  lx.font = '9px DM Sans, sans-serif';
+  lx.fillStyle = '#D9D0E3';
+  lx.strokeStyle = '#7D7389';
+  lx.lineWidth = 1;
+  lx.textAlign = 'center';
+
+  for(let v=0; v<=totalB + 0.001; v += pasoB/2){
+    const y = offY + (v/totalB)*cvH;
+    const mayor = Math.abs(v % pasoB) < 0.001;
+    lx.beginPath();
+    lx.moveTo(mayor ? 10 : 16, y);
+    lx.lineTo(26, y);
+    lx.stroke();
+    if(mayor){
+      lx.save();
+      lx.translate(7, y);
+      lx.rotate(-Math.PI/2);
+      lx.fillText(v % 1 === 0 ? v : v.toFixed(1), 0, 3);
+      lx.restore();
+    }
+  }
+}
 
 /* ---------- Auto recortar bordes vacíos ---------- */
 const autoRecortarBtn = el('autoRecortarBtn');
@@ -603,7 +1575,7 @@ autoRecortarBtn.addEventListener('click', () => {
     img = nueva;
     aspectRatio = newW / newH;
     if(lockProp.checked){
-      altoInput.value = (parseFloat(anchoInput.value) / aspectRatio).toFixed(1);
+      altoInput.value = toUnidad(leerCm(anchoInput) / aspectRatio);
     }
     recalcular();
     showToast(`✂️ Recortado: ${antesW}x${antesH} → ${newW}x${newH} px`);
@@ -612,15 +1584,22 @@ autoRecortarBtn.addEventListener('click', () => {
 });
 
 /* ---------- Proporción ---------- */
+function resetTplLabel(){
+  el('tplToggle').querySelector('span').textContent = '📐 Elegir un tamaño listo';
+  document.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('active'));
+}
+
 anchoInput.addEventListener('input', () => {
+  resetTplLabel();
   if(lockProp.checked && img){
-    altoInput.value = (parseFloat(anchoInput.value || 0) / aspectRatio).toFixed(1);
+    altoInput.value = toUnidad(leerCm(anchoInput) / aspectRatio);
   }
   recalcular();
 });
 altoInput.addEventListener('input', () => {
+  resetTplLabel();
   if(lockProp.checked && img){
-    anchoInput.value = (parseFloat(altoInput.value || 0) * aspectRatio).toFixed(1);
+    anchoInput.value = toUnidad(leerCm(altoInput) * aspectRatio);
   }
   recalcular();
 });
@@ -645,17 +1624,15 @@ function setFormat(f){
 }
 
 /* ---------- Zoom ---------- */
-el('zoomIn').addEventListener('click', () => { zoom = Math.min(zoom+0.2, 3); applyZoom(); });
-el('zoomOut').addEventListener('click', () => { zoom = Math.max(zoom-0.2, 0.4); applyZoom(); });
-el('fitBtn').addEventListener('click', () => { zoom = 1; applyZoom(); });
-function applyZoom(){ previewCanvas.style.transform = `scale(${zoom})`; }
+
+
 
 /* ---------- Cálculo principal ---------- */
 function recalcular(){
   if(!img) return;
 
-  const anchoCm = parseFloat(anchoInput.value) || 0;
-  const altoCm  = parseFloat(altoInput.value) || 0;
+  const anchoCm = leerCm(anchoInput);
+  const altoCm  = leerCm(altoInput);
   if(anchoCm <= 0 || altoCm <= 0) return;
 
   // Resolución de trabajo del "master canvas" (cap para no reventar el navegador)
@@ -673,7 +1650,14 @@ function recalcular(){
   masterCanvas.height = masterH;
   const mctx = masterCanvas.getContext('2d');
   mctx.clearRect(0,0,masterW,masterH);
-  mctx.drawImage(img, 0, 0, masterW, masterH);
+
+  // La imagen se coloca según su posición y escala (movible con el dedo)
+  const baseEscala = Math.min(masterW / img.naturalWidth, masterH / img.naturalHeight);
+  const dibW = img.naturalWidth  * baseEscala * tf.escala;
+  const dibH = img.naturalHeight * baseEscala * tf.escala;
+  const dibX = (masterW - dibW)/2 + tf.x * masterW;
+  const dibY = (masterH - dibH)/2 + tf.y * masterH;
+  mctx.drawImage(img, dibX, dibY, dibW, dibH);
 
   // Modo Molde: silueta en blanco y negro (todo pixel visible -> negro sólido)
   if(chkMolde.checked){
@@ -693,33 +1677,33 @@ function recalcular(){
     mctx.putImageData(data,0,0);
   }
 
-  // Papel elegido
-  const papel = PAPERS[papelSelect.value];
-  let paperWcm = papel.w, paperHcm = papel.h;
+  // Papel elegido y área imprimible (papel menos el margen de cada lado)
+  const lay = calcularLayout(anchoCm, altoCm);
+  const orientMode = lay.orient;
+  const cols = lay.cols;
+  const rows = lay.rows;
 
-  // Orientación
-  let orientMode = orientSelect.value;
-  if(orientMode === 'auto'){
-    orientMode = (anchoCm >= altoCm) ? 'landscape' : 'portrait';
-  }
-  if(orientMode === 'landscape'){
-    [paperWcm, paperHcm] = [paperHcm, paperWcm];
-  }
+  // Píxeles del lienzo por cada cm del póster
+  const pxCmX = masterW / anchoCm;
+  const pxCmY = masterH / altoCm;
 
-  const paperWpx = Math.round((paperWcm / CM_PER_INCH) * PPI);
-  const paperHpx = Math.round((paperHcm / CM_PER_INCH) * PPI);
-
-  const cols = Math.max(1, Math.ceil(masterW / paperWpx));
-  const rows = Math.max(1, Math.ceil(masterH / paperHpx));
+  // Dónde caen las divisiones entre hojas sobre el lienzo (para la cuadrícula en pantalla)
+  const cortesX = [], cortesY = [];
+  for(let c=1;c<cols;c++) cortesX.push((c*lay.areaW - lay.posX) * pxCmX);
+  for(let r=1;r<rows;r++) cortesY.push((r*lay.areaH - lay.posY) * pxCmY);
 
   // Detectar hojas vacías
   tiles = [];
   let hojasReales = 0;
   for(let r=0; r<rows; r++){
     for(let c=0; c<cols; c++){
-      const x = c*paperWpx, y = r*paperHpx;
-      const w = Math.min(paperWpx, masterW-x);
-      const h = Math.min(paperHpx, masterH-y);
+      const pz = pedazoDeHoja(lay, c, r);
+      if(!pz){ tiles.push({row:r, col:c, empty:true, pz:null}); continue; }
+
+      const x = Math.max(0, Math.round(pz.srcX * pxCmX));
+      const y = Math.max(0, Math.round(pz.srcY * pxCmY));
+      const w = Math.max(1, Math.min(masterW - x, Math.round(pz.w * pxCmX)));
+      const h = Math.max(1, Math.min(masterH - y, Math.round(pz.h * pxCmY)));
       let isEmpty = false;
       if(chkOmitir.checked){
         const data = mctx.getImageData(x,y,w,h).data;
@@ -732,7 +1716,7 @@ function recalcular(){
           isEmpty = false; break;            // hay contenido real
         }
       }
-      tiles.push({x,y,w,h,row:r,col:c,empty:isEmpty});
+      tiles.push({x,y,w,h,row:r,col:c,empty:isEmpty,pz});
       if(!isEmpty) hojasReales++;
     }
   }
@@ -741,7 +1725,9 @@ function recalcular(){
   previewCanvas.width = masterW;
   previewCanvas.height = masterH;
   const pctx = previewCanvas.getContext('2d');
-  pctx.clearRect(0,0,masterW,masterH);
+  // El lienzo se ve blanco, como el papel donde se va a imprimir
+  pctx.fillStyle = '#FFFFFF';
+  pctx.fillRect(0,0,masterW,masterH);
   pctx.drawImage(masterCanvas,0,0);
 
   if(chkGuias.checked){
@@ -750,26 +1736,22 @@ function recalcular(){
     pctx.setLineDash([]);
     pctx.strokeStyle = 'rgba(255,255,255,0.95)';
     pctx.lineWidth = grosor + 4;
-    for(let c=1;c<cols;c++){
-      const x = c*paperWpx;
+    cortesX.forEach(x => {
       pctx.beginPath(); pctx.moveTo(x,0); pctx.lineTo(x,masterH); pctx.stroke();
-    }
-    for(let r=1;r<rows;r++){
-      const y = r*paperHpx;
+    });
+    cortesY.forEach(y => {
       pctx.beginPath(); pctx.moveTo(0,y); pctx.lineTo(masterW,y); pctx.stroke();
-    }
+    });
     // Capa rosada punteada encima
     pctx.strokeStyle = '#EC4899';
     pctx.setLineDash([grosor*5, grosor*3]);
     pctx.lineWidth = grosor;
-    for(let c=1;c<cols;c++){
-      const x = c*paperWpx;
+    cortesX.forEach(x => {
       pctx.beginPath(); pctx.moveTo(x,0); pctx.lineTo(x,masterH); pctx.stroke();
-    }
-    for(let r=1;r<rows;r++){
-      const y = r*paperHpx;
+    });
+    cortesY.forEach(y => {
       pctx.beginPath(); pctx.moveTo(0,y); pctx.lineTo(masterW,y); pctx.stroke();
-    }
+    });
     pctx.setLineDash([]);
     // Marco exterior
     pctx.strokeStyle = 'rgba(236,72,153,0.85)';
@@ -799,6 +1781,9 @@ function recalcular(){
   else { calidadEl.textContent = 'Buena · ' + dpi + ' DPI'; calidadBox.classList.add('ok'); }
 
   actualizarAviso(dpi, anchoCm, altoCm);
+  requestAnimationFrame(() => dibujarReglas(anchoCm, altoCm));
+  dibujarHojas();
+  actualizarMedidaImagen();
 
   generarBtn.disabled = hojasReales === 0;
 }
@@ -833,7 +1818,7 @@ function actualizarAviso(dpi, anchoCm, altoCm){
     `<b>${pxNecesarioW} x ${pxNecesarioH} px</b>.`;
 
   el('btnAjustar').onclick = () => {
-    anchoInput.value = maxAnchoCm.toFixed(1);
+    anchoInput.value = toUnidad(maxAnchoCm);
     altoInput.value  = maxAltoCm.toFixed(1);
     recalcular();
     showToast('✅ Tamaño ajustado para buena calidad');
@@ -844,21 +1829,63 @@ function actualizarAviso(dpi, anchoCm, altoCm){
 
 function fitPreviewToContainer(){
   const shell = el('previewShell');
-  const maxW = shell.clientWidth - 4;
-  const scale = Math.min(1, maxW / previewCanvas.width);
-  previewCanvas.style.width = (previewCanvas.width*scale) + 'px';
-  previewCanvas.style.height = (previewCanvas.height*scale) + 'px';
+  const maxW = shell.clientWidth  - 24;
+  const maxH = Math.max(360, window.innerHeight - 210);
+  const scale = Math.min(maxW / previewCanvas.width, maxH / previewCanvas.height);
+  previewCanvas.style.width  = (previewCanvas.width  * scale) + 'px';
+  previewCanvas.style.height = (previewCanvas.height * scale) + 'px';
 }
 window.addEventListener('resize', () => { if(masterCanvas) fitPreviewToContainer(); });
 
 /* ---------- Generar (modal de confirmación) ---------- */
 generarBtn.addEventListener('click', () => {
-  const anchoCm = parseFloat(anchoInput.value);
-  const altoCm  = parseFloat(altoInput.value);
-  el('modalMedida').textContent = `${anchoCm}cm x ${altoCm}cm`;
+  // Si la calidad no alcanza, avisa primero
+  const aCm = leerCm(anchoInput);
+  const dpiAhora = Math.round(img.naturalWidth / (aCm / CM_PER_INCH));
+  if(dpiAhora < DPI_RECOMENDADO && !saltarAvisoLowres){
+    mostrarLowres(dpiAhora, aCm, leerCm(altoInput));
+    return;
+  }
+  abrirModalGenerar();
+});
+
+let saltarAvisoLowres = false;
+
+function mostrarLowres(dpi, anchoCm, altoCm){
+  const maxA = (img.naturalWidth  / DPI_RECOMENDADO) * CM_PER_INCH;
+  const maxB = (img.naturalHeight / DPI_RECOMENDADO) * CM_PER_INCH;
+  const pxW = Math.round((anchoCm / CM_PER_INCH) * DPI_RECOMENDADO);
+  const pxH = Math.round((altoCm  / CM_PER_INCH) * DPI_RECOMENDADO);
+  const u = unidad === 'cm' ? 'cm' : 'pulg';
+
+  el('lowresTexto').textContent =
+    `A ${toUnidad(anchoCm)} ${u} tu imagen quedaría en ${dpi} DPI, así que al imprimirla se notarán los pixelitos.`;
+  el('lowresDetalle').innerHTML =
+    `Con tu imagen actual (${img.naturalWidth} × ${img.naturalHeight} px) el máximo con buena calidad es ` +
+    `<b>${toUnidad(maxA)} × ${toUnidad(maxB)} ${u}</b>.<br>` +
+    `Para el tamaño que pediste necesitarías una imagen de <b>${pxW} × ${pxH} px</b>.`;
+
+  el('lowresAjustar').onclick = () => {
+    el('lowresOverlay').classList.remove('show');
+    setMedida(maxA, maxB);
+    showToast('✅ Tamaño ajustado para buena calidad');
+  };
+  el('lowresSeguir').onclick = () => {
+    el('lowresOverlay').classList.remove('show');
+    saltarAvisoLowres = true;
+    abrirModalGenerar();
+  };
+  el('lowresOverlay').classList.add('show');
+}
+
+function abrirModalGenerar(){
+  const anchoCm = leerCm(anchoInput);
+  const altoCm  = leerCm(altoInput);
+  const u = unidad === 'cm' ? 'cm' : 'pulg';
+  el('modalMedida').textContent = `${toUnidad(anchoCm)} ${u} x ${toUnidad(altoCm)} ${u}`;
   el('modalHojas').textContent = el('statHojas').textContent;
   el('modalOverlay').classList.add('show');
-});
+}
 el('modalCancel').addEventListener('click', () => el('modalOverlay').classList.remove('show'));
 el('modalOk').addEventListener('click', () => {
   el('modalOverlay').classList.remove('show');
@@ -873,27 +1900,20 @@ async function exportarPDF(){
       return;
     }
     const { jsPDF } = window.jspdf;
-    const papel = PAPERS[papelSelect.value];
-    let orientMode = orientSelect.value;
-    if(orientMode === 'auto'){
-      orientMode = (parseFloat(anchoInput.value) >= parseFloat(altoInput.value)) ? 'landscape' : 'portrait';
-    }
-    let pW = papel.w, pH = papel.h;
-    if(orientMode === 'landscape'){ [pW,pH] = [pH,pW]; }
+    const anchoCm = leerCm(anchoInput), altoCm = leerCm(altoInput);
+    const lay = calcularLayout(anchoCm, altoCm);
+    const g = geometriaPagina(lay);
+    const orient = lay.orient === 'landscape' ? 'landscape' : 'portrait';
+    const pW = lay.pW, pH = lay.pH;
 
-    const doc = new jsPDF({ unit:'cm', format:[pW,pH], orientation: orientMode === 'landscape' ? 'landscape':'portrait' });
+    const doc = new jsPDF({ unit:'cm', format:[pW,pH], orientation: orient });
 
     const visibles = tiles.filter(t => !t.empty);
-    const cols = Math.max(...tiles.map(t=>t.col)) + 1;
-    const rows = Math.max(...tiles.map(t=>t.row)) + 1;
+    dibujarPortada(doc, pW, pH, lay.cols, lay.rows, visibles.length);
 
-    /* ===== PORTADA ===== */
-    dibujarPortada(doc, pW, pH, cols, rows, visibles.length);
-
-    /* ===== HOJAS DEL PÓSTER ===== */
-    const MARGEN = 1.0; // cm de margen blanco limpio en cada hoja
-    const areaW = pW - MARGEN*2;
-    const areaH = pH - MARGEN*2;
+    const tijData = { 0: tijeraPNG(0).toDataURL('image/png'),
+                      90: tijeraPNG(90).toDataURL('image/png') };
+    const tijTam = 0.65; // cm
 
     visibles.forEach((t, idx) => {
       const tileCanvas = document.createElement('canvas');
@@ -904,21 +1924,38 @@ async function exportarPDF(){
       tctx.drawImage(masterCanvas, t.x, t.y, t.w, t.h, 0,0,t.w,t.h);
       const imgData = tileCanvas.toDataURL('image/jpeg', 0.95);
 
-      doc.addPage([pW,pH], orientMode === 'landscape' ? 'landscape':'portrait');
+      doc.addPage([pW,pH], orient);
 
-      // Encajar el recorte dentro del área útil manteniendo su proporción y centrado
-      const tileRatio = t.w / t.h;
-      let drawW = areaW, drawH = areaW / tileRatio;
-      if(drawH > areaH){ drawH = areaH; drawW = areaH * tileRatio; }
-      const offX = MARGEN + (areaW - drawW)/2;
-      const offY = MARGEN + (areaH - drawH)/2;
+      // Pedazo a tamaño REAL, en su lugar exacto dentro de la hoja
+      if(t.pz) doc.addImage(imgData, 'JPEG', t.pz.dX, t.pz.dY, t.pz.w, t.pz.h);
 
-      doc.addImage(imgData, 'JPEG', offX, offY, drawW, drawH);
+      // Líneas de corte: cruzan la hoja completa
+      const trazos = trazosCorte(lay, g);
+      if(trazos.length){
+        doc.setDrawColor(110,98,132);
+        doc.setLineWidth(0.025);
+        if(impr.lineas === 'dashed') doc.setLineDashPattern([0.3,0.2], 0);
+        else doc.setLineDashPattern([], 0);
+        trazos.forEach(([ax,ay,bx,by]) => doc.line(ax, ay, bx, by));
+        doc.setLineDashPattern([], 0);
+      }
 
-      // Numeración discreta en la esquina inferior derecha
-      doc.setFontSize(5);
-      doc.setTextColor(205,205,205);
-      doc.text(`${idx+1}/${visibles.length} · F${t.row+1}C${t.col+1}`, pW-0.35, pH-0.3, {align:'right'});
+      // Tijeritas como imagen, sobre las líneas en el margen
+      if(impr.tijeras){
+        posTijeras(lay, g).forEach(p => {
+          doc.addImage(tijData[p.rot], 'PNG', p.x - tijTam/2, p.y - tijTam/2, tijTam, tijTam);
+        });
+      }
+
+      // Numeración
+      if(impr.numeros !== 'off'){
+        doc.setFontSize(8);
+        doc.setTextColor(140,130,160);
+        const txt = impr.numeros === 'orden'
+          ? `${idx+1} / ${visibles.length}`
+          : `Fila ${t.row+1} - Col ${t.col+1}`;
+        doc.text(txt, pW-0.4, pH-0.35, {align:'right'});
+      }
     });
 
     await guardarPDF(doc);
@@ -930,8 +1967,8 @@ async function exportarPDF(){
 
 /* ---------- Portada del PDF ---------- */
 function dibujarPortada(doc, pW, pH, cols, rows, totalHojas){
-  const anchoCm = parseFloat(anchoInput.value);
-  const altoCm  = parseFloat(altoInput.value);
+  const anchoCm = leerCm(anchoInput);
+  const altoCm  = leerCm(altoInput);
   const orientTxt = el('statOrient').textContent;
   const papelTxt = papelSelect.options[papelSelect.selectedIndex].text;
 
@@ -1008,24 +2045,39 @@ function dibujarPortada(doc, pW, pH, cols, rows, totalHojas){
     if(mH > miniMaxH){ mH = miniMaxH; mW = miniMaxH * ratio; }
     const mX = (pW - mW)/2, mY = y;
 
-    const miniData = masterCanvas.toDataURL('image/jpeg', 0.8);
+    // Fondo blanco primero: el JPG no admite transparencia y la volvería negra
+    const miniCv = document.createElement('canvas');
+    miniCv.width = masterCanvas.width; miniCv.height = masterCanvas.height;
+    const miniCtx = miniCv.getContext('2d');
+    miniCtx.fillStyle = '#FFFFFF';
+    miniCtx.fillRect(0, 0, miniCv.width, miniCv.height);
+    miniCtx.drawImage(masterCanvas, 0, 0);
+    const miniData = miniCv.toDataURL('image/jpeg', 0.8);
     doc.addImage(miniData, 'JPEG', mX, mY, mW, mH);
 
-    // Cuadrícula de referencia sobre la miniatura
+    // Cuadrícula de referencia sobre la miniatura, en los cortes reales
+    const layP = calcularLayout(leerCm(anchoInput), leerCm(altoInput));
+    const kX = mW / layP.anchoCm, kY = mH / layP.altoCm;   // cm del póster -> cm de la miniatura
     doc.setDrawColor(200,190,215);
     doc.setLineWidth(0.02);
-    const cellW = mW/cols, cellH = mH/rows;
-    for(let c=1;c<cols;c++){ doc.line(mX+c*cellW, mY, mX+c*cellW, mY+mH); }
-    for(let r=1;r<rows;r++){ doc.line(mX, mY+r*cellH, mX+mW, mY+r*cellH); }
+    for(let c=1;c<layP.cols;c++){
+      const x = mX + (c*layP.areaW - layP.posX) * kX;
+      doc.line(x, mY, x, mY+mH);
+    }
+    for(let r=1;r<layP.rows;r++){
+      const y = mY + (r*layP.areaH - layP.posY) * kY;
+      doc.line(mX, y, mX+mW, y);
+    }
     doc.rect(mX, mY, mW, mH);
 
-    // Números de referencia en cada celda visible
+    // Números de referencia en el centro real de cada pedazo
     doc.setFontSize(6);
     doc.setTextColor(150,140,170);
     const visibles = tiles.filter(t=>!t.empty);
     visibles.forEach((t, idx) => {
-      const cx = mX + t.col*cellW + cellW/2;
-      const cy = mY + t.row*cellH + cellH/2;
+      if(!t.pz) return;
+      const cx = mX + (t.pz.srcX + t.pz.w/2) * kX;
+      const cy = mY + (t.pz.srcY + t.pz.h/2) * kY;
       doc.text(String(idx+1), cx, cy, {align:'center'});
     });
 
@@ -1035,27 +2087,142 @@ function dibujarPortada(doc, pW, pH, cols, rows, totalHojas){
   }
 }
 
-/* ---------- Guardar el PDF ---------- */
+/* ---------- Guardar: usa la capacidad "downloads" si está disponible (artifact publicado), o el guardado directo si es un archivo HTML normal ---------- */
 async function guardarPDF(doc){
   const raw = (document.getElementById('nombreProyecto').value || '').trim();
   const slug = raw
     ? raw.toLowerCase().replace(/[^a-z0-9áéíóúñü\s-]/gi,'').replace(/\s+/g,'-').slice(0,50)
     : 'poster-gigante';
-  doc.save(slug + '.pdf');
+  const filename = slug + '.pdf';
+  if(window.claude && typeof window.claude.use === 'function'){
+    try{
+      const downloads = await window.claude.use('downloads');
+      if(downloads){
+        const blob = doc.output('blob');
+        const res = await downloads.save({ filename: filename, data: blob });
+        if(res){ showToast('✅ PDF generado con éxito'); }
+        else{ showToast('Descarga cancelada'); }
+        return;
+      }
+    }catch(e){
+      console.error('downloads capability failed', e);
+    }
+  }
+  // Fallback: archivo HTML normal (no artifact) o capacidad no disponible
+  doc.save(filename);
   showToast('✅ PDF generado con éxito');
 }
 
+/* ---------- Exportar ZIP (placeholder liviano) ---------- */
+function exportarZIP(){
+  showToast('🗂️ Exportación ZIP disponible en la fase 2 (requiere librería JSZip)');
+}
+
 /* ---------- Botones secundarios ---------- */
-el('btnWA').addEventListener('click', () => {
-  window.open('https://wa.me/?text=' + encodeURIComponent('¡Mira el póster gigante que armé con Élite Creativa Estudio! 🎉'), '_blank');
-});
+el('btnWA').addEventListener('click', generarImagenRedes);
+
 el('btnPrint').addEventListener('click', () => {
   if(!masterCanvas){ showToast('Primero sube una imagen'); return; }
   exportarPDF();
 });
-el('btnLink').addEventListener('click', () => {
-  showToast('🔗 Compartir enlace 24h estará disponible al conectar el backend (fase 2)');
-});
+
+/* ---------- Imagen cuadrada 1080x1080 para redes sociales ---------- */
+async function generarImagenRedes(){
+  if(!masterCanvas){ showToast('Primero sube una imagen'); return; }
+
+  const S = 1080;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const cx = c.getContext('2d');
+
+  // Fondo degradado pastel de marca
+  const g = cx.createLinearGradient(0,0,S,S);
+  g.addColorStop(0,   '#FFE9F3');
+  g.addColorStop(0.5, '#FFFBFE');
+  g.addColorStop(1,   '#F3E8FF');
+  cx.fillStyle = g;
+  cx.fillRect(0,0,S,S);
+
+  // Área del póster (deja espacio para la franja de marca abajo)
+  const FRANJA = 132;
+  const PAD = 70;
+  const areaW = S - PAD*2;
+  const areaH = S - FRANJA - PAD*1.5;
+
+  const ratio = masterCanvas.width / masterCanvas.height;
+  let dW = areaW, dH = areaW / ratio;
+  if(dH > areaH){ dH = areaH; dW = areaH * ratio; }
+  const dX = (S - dW)/2;
+  const dY = PAD + (areaH - dH)/2;
+
+  // Sombra suave + tarjeta blanca detrás del póster
+  cx.save();
+  cx.shadowColor = 'rgba(180,120,200,0.35)';
+  cx.shadowBlur = 34;
+  cx.shadowOffsetY = 10;
+  cx.fillStyle = '#FFFFFF';
+  cx.fillRect(dX-14, dY-14, dW+28, dH+28);
+  cx.restore();
+
+  cx.drawImage(masterCanvas, dX, dY, dW, dH);
+
+  // Franja de marca abajo
+  const fy = S - FRANJA;
+  const fg = cx.createLinearGradient(0, fy, S, S);
+  fg.addColorStop(0, '#EC4899');
+  fg.addColorStop(1, '#9333EA');
+  cx.fillStyle = fg;
+  cx.fillRect(0, fy, S, FRANJA);
+
+  cx.textAlign = 'center';
+  cx.fillStyle = '#FFFFFF';
+  cx.font = "700 40px 'Baloo 2', sans-serif";
+  cx.fillText('Élite Creativa Estudio', S/2, fy + 56);
+  cx.font = "500 26px 'DM Sans', sans-serif";
+  cx.fillStyle = 'rgba(255,255,255,0.92)';
+  cx.fillText('elitecreativa.johannadigitalseattle.com', S/2, fy + 96);
+
+  // Nombre del proyecto como título discreto arriba (si existe)
+  const nombreProy = (document.getElementById('nombreProyecto').value || '').trim();
+  if(nombreProy){
+    cx.textAlign = 'center';
+    cx.fillStyle = 'rgba(120,80,140,0.75)';
+    cx.font = "600 28px 'Baloo 2', sans-serif";
+    cx.fillText(nombreProy, S/2, 46);
+  }
+
+  const slug = nombreProy
+    ? nombreProy.toLowerCase().replace(/[^a-z0-9áéíóúñü\s-]/gi,'').replace(/\s+/g,'-').slice(0,40)
+    : 'mi-poster';
+  const filename = slug + '-redes.png';
+
+  c.toBlob(async (blob) => {
+    if(!blob){ showToast('No se pudo generar la imagen'); return; }
+
+    // Compartir nativo (celular): abre Facebook, Instagram, WhatsApp, etc.
+    const file = new File([blob], filename, { type: 'image/png' });
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      try{
+        await navigator.share({
+          files: [file],
+          title: 'Mi póster gigante',
+          text: 'Hecho con Élite Creativa Estudio ✨'
+        });
+        return;
+      }catch(e){
+        if(e.name === 'AbortError') return; // la usuaria canceló
+      }
+    }
+
+    // Escritorio: descarga la imagen lista para subir
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+    showToast('📲 Imagen lista para subir a tus redes');
+  }, 'image/png');
+}
 
 /* ---------- Toast ---------- */
 function showToast(msg){
@@ -1063,6 +2230,15 @@ function showToast(msg){
   toast.classList.add('show');
   setTimeout(()=> toast.classList.remove('show'), 2600);
 }
+
+/* ---------- Arranque ---------- */
+renderPlantillas();
+enlazarColocacion();
+window.addEventListener('resize', () => {
+  if(!img) return;
+  if(vistaActual === 'hojas') dibujarHojas();
+  else dibujarReglas(leerCm(anchoInput), leerCm(altoInput));
+});
 </script>
 </body>
 </html>
