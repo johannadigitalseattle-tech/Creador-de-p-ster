@@ -750,6 +750,7 @@
     </div>
 
     <div class="stats">
+      <div class="stat" style="grid-column:1/-1;"><div class="label">Tamaño final del póster armado</div><div class="value" id="statFinal">–</div></div>
       <div class="stat"><div class="label">Hojas</div><div class="value" id="statHojas">–</div></div>
       <div class="stat"><div class="label">Cuadrícula</div><div class="value" id="statGrid">–</div></div>
       <div class="stat"><div class="label">Orientación</div><div class="value" id="statOrient" style="font-size:13px;">–</div></div>
@@ -906,11 +907,18 @@ function calcularLayout(anchoCm, altoCm){
   // toda la cuadrícula, y lo que sobra se reparte entre las hojas de las orillas.
   lay.gridW = lay.cols * lay.areaW;
   lay.gridH = lay.rows * lay.areaH;
-  lay.posX  = (lay.gridW - anchoCm) / 2;   // dónde empieza el póster dentro de la cuadrícula
-  lay.posY  = (lay.gridH - altoCm)  / 2;
-  lay.anchoCm = anchoCm;
-  lay.altoCm  = altoCm;
+  // El póster REAL es el área completa de las hojas: lo que ves en Diseño es lo que se imprime
+  lay.posX  = 0;
+  lay.posY  = 0;
+  lay.anchoCm = lay.gridW;
+  lay.altoCm  = lay.gridH;
   return lay;
+}
+
+// Medida final real del póster armado (área completa de las hojas), en cm
+function medidaReal(){
+  const lay = calcularLayout(leerCm(anchoInput), leerCm(altoInput));
+  return { w: lay.anchoCm, h: lay.altoCm };
 }
 
 // Marco de cada hoja: el área imprimible, justo dentro del margen elegido
@@ -998,7 +1006,7 @@ function resetTf(){ tf.x = 0; tf.y = 0; tf.escala = 1; }
 
 function actualizarMedidaImagen(){
   if(!img) return;
-  const anchoCm = leerCm(anchoInput), altoCm = leerCm(altoInput);
+  const { w: anchoCm, h: altoCm } = medidaReal();
   const base = Math.min(anchoCm / img.naturalWidth, altoCm / img.naturalHeight);
   const w = img.naturalWidth  * base * tf.escala;
   const h = img.naturalHeight * base * tf.escala;
@@ -1105,7 +1113,7 @@ function enlazarColocacion(){
     showToast('🔳 Imagen ajustada al lienzo');
   });
   el('btnCubrir').addEventListener('click', () => {
-    const anchoCm = leerCm(anchoInput), altoCm = leerCm(altoInput);
+    const { w: anchoCm, h: altoCm } = medidaReal();
     const ratioLienzo = anchoCm / altoCm;
     const ratioImg = img.naturalWidth / img.naturalHeight;
     tf.x = 0; tf.y = 0;
@@ -1134,7 +1142,7 @@ document.querySelectorAll('.vista-btn').forEach(b => {
     el('vistaDiseno').style.display = vistaActual === 'diseno' ? 'block' : 'none';
     el('vistaHojas').style.display  = vistaActual === 'hojas'  ? 'block' : 'none';
     if(vistaActual === 'hojas') dibujarHojas();
-    else if(img) requestAnimationFrame(() => { fitPreviewToContainer(); dibujarReglas(leerCm(anchoInput), leerCm(altoInput)); });
+    else if(img) requestAnimationFrame(() => { fitPreviewToContainer(); dibujarReglas(medidaReal().w, medidaReal().h); });
   });
 });
 
@@ -1631,9 +1639,11 @@ function setFormat(f){
 function recalcular(){
   if(!img) return;
 
-  const anchoCm = leerCm(anchoInput);
-  const altoCm  = leerCm(altoInput);
-  if(anchoCm <= 0 || altoCm <= 0) return;
+  const pedidoW = leerCm(anchoInput);
+  const pedidoH = leerCm(altoInput);
+  if(!(pedidoW > 0) || !(pedidoH > 0)) return;
+  // Medida real = área completa de las hojas que hacen falta
+  const { w: anchoCm, h: altoCm } = medidaReal();
 
   // Resolución de trabajo del "master canvas" (cap para no reventar el navegador)
   let masterW = Math.round((anchoCm / CM_PER_INCH) * PPI);
@@ -1771,6 +1781,7 @@ function recalcular(){
   el('statHojas').textContent = hojasReales;
   el('statGrid').textContent = `${cols}x${rows}`;
   el('statOrient').textContent = orientMode === 'landscape' ? 'Horizontal' : 'Vertical';
+  el('statFinal').textContent = `${toUnidad(anchoCm)} × ${toUnidad(altoCm)} ${unidad === 'cm' ? 'cm' : 'pulg'}`;
 
   const dpi = Math.round(img.naturalWidth / (anchoCm / CM_PER_INCH));
   const calidadBox = el('statCalidadBox');
@@ -1840,10 +1851,11 @@ window.addEventListener('resize', () => { if(masterCanvas) fitPreviewToContainer
 /* ---------- Generar (modal de confirmación) ---------- */
 generarBtn.addEventListener('click', () => {
   // Si la calidad no alcanza, avisa primero
-  const aCm = leerCm(anchoInput);
+  const real = medidaReal();
+  const aCm = real.w;
   const dpiAhora = Math.round(img.naturalWidth / (aCm / CM_PER_INCH));
   if(dpiAhora < DPI_RECOMENDADO && !saltarAvisoLowres){
-    mostrarLowres(dpiAhora, aCm, leerCm(altoInput));
+    mostrarLowres(dpiAhora, aCm, real.h);
     return;
   }
   abrirModalGenerar();
@@ -1879,8 +1891,7 @@ function mostrarLowres(dpi, anchoCm, altoCm){
 }
 
 function abrirModalGenerar(){
-  const anchoCm = leerCm(anchoInput);
-  const altoCm  = leerCm(altoInput);
+  const { w: anchoCm, h: altoCm } = medidaReal();
   const u = unidad === 'cm' ? 'cm' : 'pulg';
   el('modalMedida').textContent = `${toUnidad(anchoCm)} ${u} x ${toUnidad(altoCm)} ${u}`;
   el('modalHojas').textContent = el('statHojas').textContent;
@@ -1900,6 +1911,8 @@ async function exportarPDF(){
       return;
     }
     const { jsPDF } = window.jspdf;
+    // Volver a cortar todo con los ajustes de ESTE momento: pedazos, hojas y líneas salen del mismo cálculo
+    recalcular();
     const anchoCm = leerCm(anchoInput), altoCm = leerCm(altoInput);
     const lay = calcularLayout(anchoCm, altoCm);
     const g = geometriaPagina(lay);
@@ -1967,8 +1980,7 @@ async function exportarPDF(){
 
 /* ---------- Portada del PDF ---------- */
 function dibujarPortada(doc, pW, pH, cols, rows, totalHojas){
-  const anchoCm = leerCm(anchoInput);
-  const altoCm  = leerCm(altoInput);
+  const { w: anchoCm, h: altoCm } = medidaReal();
   const orientTxt = el('statOrient').textContent;
   const papelTxt = papelSelect.options[papelSelect.selectedIndex].text;
 
@@ -2005,7 +2017,7 @@ function dibujarPortada(doc, pW, pH, cols, rows, totalHojas){
   doc.setFontSize(9.5);
   doc.setTextColor(90,80,110);
   const datos = [
-    ['Medida final', `${anchoCm} cm de ancho x ${altoCm} cm de alto`],
+    ['Medida final', `${anchoCm.toFixed(1)} cm de ancho x ${altoCm.toFixed(1)} cm de alto`],
     ['Cuadrícula', `${cols} columnas x ${rows} filas`],
     ['Total de hojas', `${totalHojas}`],
     ['Papel', papelTxt],
@@ -2237,7 +2249,7 @@ enlazarColocacion();
 window.addEventListener('resize', () => {
   if(!img) return;
   if(vistaActual === 'hojas') dibujarHojas();
-  else dibujarReglas(leerCm(anchoInput), leerCm(altoInput));
+  else dibujarReglas(medidaReal().w, medidaReal().h);
 });
 </script>
 </body>
